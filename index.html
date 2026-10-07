@@ -1,0 +1,2153 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Comunicaciones Ópticas · Apuntes</title>
+<meta name="description" content="Apuntes interactivos no oficiales de Comunicaciones Ópticas (4º GITT, Universidad de Alcalá): LED, láser, Fabry-Pérot, ruido, láser monomodo y WDM, con dibujos interactivos y un mapa de conexiones.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' x2='1'%3E%3Cstop offset='0' stop-color='%237b55c6'/%3E%3Cstop offset='.35' stop-color='%232f6fde'/%3E%3Cstop offset='.65' stop-color='%232a9d6a'/%3E%3Cstop offset='1' stop-color='%23d44a3f'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='7' fill='url(%23g)'/%3E%3Cpath d='M5 21c4-10 6 4 11-5s6 3 11-4' fill='none' stroke='white' stroke-width='2.4' stroke-linecap='round'/%3E%3C/svg%3E">
+<script>window.__errores=[];addEventListener('error',function(e){__errores.push(e.message)});addEventListener('unhandledrejection',function(e){__errores.push(String(e.reason))});</script>
+<style>
+/* ===== Paleta: colores del espectro de la luz. Cada área del enlace usa uno (data-color) ===== */
+:root{
+  --bg:#f3f5f9; --panel:#ffffff; --ink:#15202e; --muted:#5a6a7b; --line:#d3dae3; --soft:#e8edf3;
+  --blue:#2f6fde; --orange:#e0721f; --green:#2a9d6a; --brown:#8c5b3e; --slate:#5f7285;
+  --red:#d44a3f; --yellow:#b88a00; --violet:#7b55c6;
+  --pair:var(--blue);
+  --amber:#b45309; --amber-bg:#fff2d6;
+  --az:#1f5fbf;               /* azul del Word: añadido del material, con su fuente */
+  --extra:#1f7a52;            /* verde de las cajas «Extra» */
+  /* acentos para texto, enlaces y rellenos con texto encima (contraste >= 4,5:1) */
+  --blue-s:#2a63c9;--orange-s:#a94b0e;--green-s:#1f7a52;--brown-s:#8c5b3e;--slate-s:#5a6d80;--red-s:#b83a30;--yellow-s:#8a6a00;--violet-s:#7b55c6;
+  --on-solid:#ffffff;--pair-s:var(--blue-s);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e1620; --panel:#152130; --ink:#e6edf5; --muted:#94a5b6; --line:#26384b; --soft:#1c2b3c;
+    --blue:#6c9dff; --orange:#ffa24e; --green:#4cc795; --brown:#c8967a; --slate:#9aafc3;
+    --red:#ff7a6e; --yellow:#e8c247; --violet:#a98bff;
+    --amber:#f0b35a; --amber-bg:#35290f; --az:#8db6ff; --extra:#4cc795;
+    --blue-s:var(--blue);--orange-s:var(--orange);--green-s:var(--green);--brown-s:var(--brown);--slate-s:var(--slate);--red-s:var(--red);--yellow-s:var(--yellow);--violet-s:var(--violet);--on-solid:#0e1620;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e1620; --panel:#152130; --ink:#e6edf5; --muted:#94a5b6; --line:#26384b; --soft:#1c2b3c;
+  --blue:#6c9dff; --orange:#ffa24e; --green:#4cc795; --brown:#c8967a; --slate:#9aafc3;
+  --red:#ff7a6e; --yellow:#e8c247; --violet:#a98bff;
+  --amber:#f0b35a; --amber-bg:#35290f; --az:#8db6ff; --extra:#4cc795;
+  --blue-s:var(--blue);--orange-s:var(--orange);--green-s:var(--green);--brown-s:var(--brown);--slate-s:var(--slate);--red-s:var(--red);--yellow-s:var(--yellow);--violet-s:var(--violet);--on-solid:#0e1620;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important;animation:none!important}}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 "Segoe UI Variable Text","Segoe UI",system-ui,sans-serif}
+.disp{font-family:Bahnschrift,"DIN Alternate","Arial Narrow",system-ui,sans-serif;font-variation-settings:"wdth" 88}
+code,.mono,kbd{font-family:"Cascadia Mono",Consolas,ui-monospace,monospace;font-size:.9em}
+a{color:var(--pair-s)}
+:focus-visible{outline:3px solid var(--pair);outline-offset:2px;border-radius:4px}
+.skip{position:absolute;left:-999px;top:0;background:var(--panel);padding:8px 12px;z-index:99}
+.skip:focus{left:8px;top:8px}
+
+/* ===== Estructura ===== */
+.app{display:grid;grid-template-columns:272px minmax(0,1fr);min-height:100vh}
+.rail{position:sticky;top:0;height:100vh;overflow:auto;padding:20px 14px 16px 18px;background:var(--panel);border-right:1px solid var(--line);display:flex;flex-direction:column;gap:14px}
+.brand{font-family:Bahnschrift,"DIN Alternate","Arial Narrow",system-ui,sans-serif;font-variation-settings:"wdth" 80;font-size:28px;font-weight:600;line-height:1.05;text-decoration:none;color:var(--ink);letter-spacing:-.01em}
+.brand small{display:block;font:500 13px/1.3 "Segoe UI",system-ui,sans-serif;color:var(--muted);margin-top:6px;letter-spacing:0}
+.search input{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font:inherit;font-size:14px}
+#sres{margin-top:6px;border:1px solid var(--line);border-radius:8px;background:var(--panel);max-height:50vh;overflow:auto;font-size:13px}
+#sres[hidden]{display:none}
+#sres a{display:block;padding:7px 10px;text-decoration:none;color:var(--ink);border-bottom:1px solid var(--soft)}
+#sres a:hover,#sres a:focus-visible{background:var(--soft)}
+#sres b{display:block}
+#sres span{color:var(--muted)}
+
+/* menú lateral: una línea de fibra que une los conectores */
+nav#nav{position:relative;display:flex;flex-direction:column;gap:2px}
+nav#nav::before{content:"";position:absolute;left:15px;top:14px;bottom:14px;width:3px;border-radius:2px;
+  background:linear-gradient(180deg,var(--violet),var(--blue),var(--green),var(--yellow),var(--orange),var(--red));opacity:.35}
+.ng{margin:12px 0 2px 4px;font:600 12px/1.3 "Segoe UI",system-ui,sans-serif;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);position:relative}
+.ng.sub{margin-left:14px;letter-spacing:.03em}
+.ni{position:relative;display:flex;align-items:center;gap:12px;padding:6px 8px 6px 4px;border-radius:8px;text-decoration:none;color:var(--ink);font-size:15px;line-height:1.25}
+.ni.in{margin-left:12px}
+.ni:hover{background:var(--soft)}
+.ni .jk{flex:none;width:24px;height:24px;border-radius:50%;border:3px solid var(--c,var(--slate));background:var(--panel);position:relative;z-index:1;display:grid;place-items:center;transition:background .15s}
+.ni.seen .jk{background:color-mix(in srgb,var(--c) 35%,var(--panel))}
+.ni.done .jk{background:var(--c)}
+.ni.done .jk::after{content:"";width:6px;height:11px;border:solid var(--panel);border-width:0 2.5px 2.5px 0;transform:translateY(-1px) rotate(45deg)}
+.ni.on{background:color-mix(in srgb,var(--c) 14%,var(--panel));font-weight:600}
+.ni.pend{color:var(--muted);cursor:default}
+.ni.pend:hover{background:none}
+.ni.pend .jk{border-style:dashed}
+.ni small{display:block;color:var(--muted);font-weight:400;font-size:12px}
+#rail-menu{display:flex;flex-direction:column;gap:14px;flex:1 1 auto}
+.menu-btn{display:none;align-self:flex-start}
+.solo-movil{display:none}
+.railfoot{margin-top:auto;display:flex;flex-direction:column;gap:8px;font-size:13px;color:var(--muted)}
+.b{font:inherit;font-size:14px;border:1px solid var(--line);background:var(--panel);color:var(--ink);padding:5px 12px;border-radius:7px;cursor:pointer}
+.b:hover{border-color:var(--pair)}
+.b[aria-pressed="true"],.b.on{background:var(--pair-s);border-color:var(--pair-s);color:var(--on-solid)}
+.b.pri{background:var(--pair-s);border-color:var(--pair-s);color:var(--on-solid)}
+.b:disabled{opacity:.45;cursor:default}
+main{padding:28px clamp(16px,4vw,48px) 90px;min-width:0}
+.page{display:none;max-width:1000px;margin:0 auto}
+.page.show{display:block}
+
+/* ===== Cabecera de página ===== */
+.page.tema{--pair:var(--blue);--pair-s:var(--blue-s)}
+.tema[data-color="orange"]{--pair:var(--orange);--pair-s:var(--orange-s);--pos:76%}
+.tema[data-color="green"]{--pair:var(--green);--pair-s:var(--green-s);--pos:40%}
+.tema[data-color="blue"]{--pos:22%}
+.tema[data-color="violet"]{--pair:var(--violet);--pair-s:var(--violet-s);--pos:4%}
+.tema[data-color="red"]{--pair:var(--red);--pair-s:var(--red-s);--pos:94%}
+.tema[data-color="yellow"]{--pair:var(--yellow);--pair-s:var(--yellow-s);--pos:58%}
+.tema[data-color="brown"]{--pair:var(--brown);--pair-s:var(--brown-s);--pos:50%}
+.tema[data-color="slate"]{--pair:var(--slate);--pair-s:var(--slate-s);--pos:50%}
+.page h2{font-family:Bahnschrift,"DIN Alternate","Arial Narrow",system-ui,sans-serif;font-variation-settings:"wdth" 82;font-weight:600;font-size:clamp(34px,5.2vw,56px);line-height:1.04;letter-spacing:-.015em;margin:4px 0 14px}
+/* franja del espectro con un marcador en el color de la página */
+.pairbar{position:relative;height:8px;border-radius:4px;margin:6px 0 16px;background:linear-gradient(90deg,var(--violet),var(--blue),var(--green),var(--yellow),var(--orange),var(--red));opacity:.85}
+.pairbar::after{content:"";position:absolute;left:var(--pos,50%);top:-5px;width:8px;height:18px;margin-left:-4px;border-radius:4px;background:var(--pair);border:2px solid var(--bg)}
+.src{font-size:13px;color:var(--muted);margin:0 0 4px}
+.src b{color:var(--pair-s)}
+.lead{font-size:19px;line-height:1.5;max-width:62ch;margin:0 0 18px}
+.page.tema .lead::before{content:"Idea clave";display:block;font:700 12px/1.6 "Segoe UI",system-ui,sans-serif;letter-spacing:.09em;text-transform:uppercase;color:var(--pair-s)}
+.jump{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 6px}
+.jump a{font-size:13px;padding:3px 11px 3px 6px;border-radius:99px;border:1px solid var(--line);text-decoration:none;color:var(--ink);background:var(--panel)}
+.jump a:hover{border-color:var(--pair);color:var(--pair-s)}
+.jump a b{display:inline-grid;place-items:center;min-width:20px;height:20px;border-radius:50%;background:var(--pair-s);color:var(--on-solid);font-size:12px;margin-right:6px}
+.summary{background:color-mix(in srgb,var(--pair) 9%,var(--panel));border:1px solid color-mix(in srgb,var(--pair) 35%,var(--line));border-radius:12px;padding:12px 18px 14px;margin:18px 0}
+.summary h3{margin:0 0 4px;font-size:18px}
+.summary ul{margin:6px 0 0;padding-left:20px}
+.summary li{margin:3px 0}
+h3{font-family:Bahnschrift,"DIN Alternate","Arial Narrow",system-ui,sans-serif;font-variation-settings:"wdth" 88;font-size:27px;font-weight:600;line-height:1.15;margin:46px 0 10px;scroll-margin-top:16px}
+h3::before{content:"";display:inline-block;width:14px;height:14px;border-radius:50%;border:4px solid var(--pair);margin-right:10px;vertical-align:-1px}
+/* subapartados numerados: el número sustituye al círculo */
+h3[data-n]::before{content:attr(data-n);width:34px;height:34px;display:inline-grid;place-items:center;border:0;background:var(--pair-s);color:var(--on-solid);font:700 18px/1 "Segoe UI",system-ui,sans-serif;margin-right:12px;vertical-align:2px}
+h4{font-size:17px;margin:20px 0 6px}
+p{margin:8px 0;max-width:74ch}
+ul,ol{max-width:74ch}
+li{margin:3px 0}
+.pgnav{display:flex;justify-content:space-between;gap:12px;margin-top:56px;padding-top:18px;border-top:1px solid var(--line);flex-wrap:wrap}
+.pgnav a{flex:1 1 220px;border:1px solid var(--line);border-radius:10px;padding:10px 14px;text-decoration:none;color:var(--ink);background:var(--panel)}
+.pgnav a:hover{border-color:var(--pair)}
+.pgnav small{display:block;color:var(--muted)}
+.pgnav a.nx{text-align:right}
+.domino{display:flex;align-items:center;gap:10px;margin-top:22px;flex-wrap:wrap}
+
+/* ===== Código de colores del Word ===== */
+.az{color:var(--az)}                      /* azul: añadido del material, con su fuente */
+.ojo,.extra{border-radius:10px;padding:10px 14px;margin:14px 0;max-width:78ch}
+.ojo{background:var(--amber-bg);border:1px solid color-mix(in srgb,var(--amber) 45%,var(--amber-bg))}
+.ojo b:first-child{color:var(--amber)}
+.extra{border:1px dashed var(--extra);background:color-mix(in srgb,var(--extra) 8%,var(--panel))}
+.extra b:first-child{color:var(--extra)}
+li>.ojo{margin:6px 0 4px}
+.leyenda{display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));margin:14px 0}
+.leyenda>div{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:14px}
+.leyenda b{display:block}
+.leyenda .az,.leyenda .nm{font-weight:600}
+
+/* ===== Bloques de contenido ===== */
+table{border-collapse:collapse;width:100%;background:var(--panel);border:1px solid var(--line);font-size:15px;margin:12px 0}
+th,td{padding:7px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{background:var(--soft);font-weight:600;font-size:14px}
+.tw{overflow-x:auto}
+.cols{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));margin:14px 0}
+.pn{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 16px}
+.pn h4{margin-top:2px}
+.pn.t{border-top:4px solid var(--pair)}
+.tag{display:inline-block;font-size:13px;font-weight:600;padding:1px 9px;border-radius:6px;background:color-mix(in srgb,var(--pair) 18%,var(--panel));color:var(--ink)}
+.fx{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:8px 14px;margin:8px 0;font-family:"Cambria Math",Cambria,Georgia,serif;font-size:18px;line-height:1.8;overflow-x:auto;max-width:78ch}
+.fx small{font-family:"Segoe UI",system-ui,sans-serif;font-size:13px;color:var(--muted)}
+
+/* ===== Tira «5.2 paso a paso» y bloque «Se conecta con» ===== */
+.hilo{display:flex;flex-wrap:wrap;align-items:stretch;gap:6px;margin:14px 0 4px}
+.hilo .t{flex:1 0 100%;font:700 12px/1.4 "Segoe UI",system-ui,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.hilo a{display:flex;align-items:center;gap:8px;padding:5px 12px 5px 6px;border:1px solid var(--line);border-radius:99px;background:var(--panel);color:var(--ink);text-decoration:none;font-size:14px}
+.hilo a b{display:inline-grid;place-items:center;min-width:22px;height:22px;border-radius:50%;background:var(--cs,var(--slate-s));color:var(--on-solid);font-size:12px}
+.hilo a:hover{border-color:var(--c,var(--slate))}
+.hilo a[aria-current="page"]{background:color-mix(in srgb,var(--c,var(--slate)) 16%,var(--panel));border-color:var(--c,var(--slate));font-weight:600}
+.hilo .sig{flex:1 0 100%;font-size:14px;color:var(--muted);margin:2px 0 0}
+.conecta{background:var(--panel);border:1px solid var(--line);border-left:5px solid var(--pair);border-radius:10px;padding:10px 16px 12px;margin:36px 0 0;max-width:78ch}
+.conecta .ch{font:600 20px/1.2 Bahnschrift,"DIN Alternate",system-ui,sans-serif;margin:6px 0}
+.conecta ul{list-style:none;padding:0;margin:6px 0}
+.conecta li{padding:6px 0;border-bottom:1px solid var(--soft);font-size:15px}
+.conecta li:last-child{border-bottom:0}
+.conecta .pendiente{color:var(--muted)}
+.conecta .prop{display:inline-block;font-size:12px;font-weight:600;border:1px dashed var(--extra);color:var(--extra);border-radius:6px;padding:0 6px;margin-left:6px}
+.conecta .vermapa{display:inline-block;margin-top:6px}
+
+/* ===== Inicio ===== */
+#p-home h2{margin-bottom:6px}
+.maplead{font-size:18px;margin:0 0 6px;max-width:60ch}
+.homegrid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));margin-top:16px}
+.tools a{display:block;padding:9px 12px;border:1px solid var(--line);border-radius:8px;margin:6px 0;text-decoration:none;color:var(--ink);background:var(--bg)}
+.tools a:hover{border-color:var(--blue)}
+.tools small{display:block;color:var(--muted)}
+
+/* ===== Repaso ===== */
+.fc{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px 24px;margin:14px 0;min-height:200px;max-width:720px}
+.fc .from{font-size:13px;color:var(--muted);margin-bottom:10px}
+.fc .qq{font-family:Bahnschrift,system-ui,sans-serif;font-variation-settings:"wdth" 90;font-size:26px;line-height:1.2;font-weight:600}
+.fc .aa{margin-top:14px;padding-top:12px;border-top:1px dashed var(--line);font-size:17px}
+.stats{font-size:14px;color:var(--muted)}
+
+.aviso{max-width:1000px;margin:48px auto 0;padding-top:14px;border-top:1px solid var(--line);font-size:13px;color:var(--muted)}
+@media (max-width:900px){
+  .app{grid-template-columns:minmax(0,1fr)}
+  .rail{position:static;height:auto;flex-direction:column;border-right:0;border-bottom:1px solid var(--line);gap:10px;padding:14px 16px}
+  .brand{font-size:24px}
+  .menu-btn{display:inline-block}
+  #rail-menu{display:none}
+  .rail.abierto #rail-menu{display:flex}
+  .solo-movil{display:block}
+  nav#nav{flex-direction:row;flex-wrap:wrap}
+  nav#nav::before{display:none}
+  .ni small{display:none}
+  .ng{flex:1 0 100%}
+  .ni.in{margin-left:0}
+}
+@media print{
+  .rail,.pgnav,.domino,.jump,.hilo,.conecta .vermapa,#p-home,#p-repaso{display:none!important}
+  .app{display:block}
+  .page.tema{display:block!important;break-before:page}
+  .page.tema:first-of-type{break-before:auto}
+  body{background:#fff}
+  details.q:not([open]) > *:not(summary){display:block}
+  .w,.diagram,table{break-inside:avoid}
+}
+
+/* ===== Mapa interactivo de conexiones ===== */
+.diagram.mapa{padding:6px}
+.diagram.mapa svg{min-width:640px}
+.mapa .banda rect{fill:color-mix(in srgb,var(--c) 8%,var(--panel));stroke:color-mix(in srgb,var(--c) 35%,var(--line));stroke-width:1}
+.mapa .btitulo{font-size:12px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;fill:var(--cs);paint-order:stroke;stroke:var(--panel);stroke-width:4px;stroke-linejoin:round;pointer-events:none}
+.mapa .nodo{cursor:pointer;outline:none}
+.mapa .nodo rect{fill:var(--panel);stroke:var(--c);stroke-width:2.2}
+.mapa .nodo.pend rect{stroke-dasharray:6 4;fill:var(--bg);stroke-width:1.8}
+.mapa .nodo text{font-size:12.5px;font-weight:600;pointer-events:none}
+.mapa .nodo.pend text{fill:var(--muted);font-weight:400}
+.mapa .nodo:hover rect{fill:color-mix(in srgb,var(--c) 14%,var(--panel))}
+.mapa .nodo:focus-visible rect{stroke:var(--ink);stroke-width:3.5}
+.mapa .nodo.sel rect{fill:color-mix(in srgb,var(--c) 30%,var(--panel));stroke-width:3.4}
+.mapa .nodo.vec rect{stroke-width:3.2}
+.mapa .nodo.dim,.mapa .nodo.fuera{opacity:.28}
+.mapa path.ar{fill:none;stroke:var(--muted);stroke-width:1.4;opacity:.6;marker-end:url(#mapa-fl)}
+.mapa path.ar.propuesta{stroke-dasharray:6 5}
+.mapa path.ar.act{stroke:var(--ink);stroke-width:3;opacity:1;marker-end:url(#mapa-fl-act)}
+.mapa path.ar.dim,.mapa path.ar.fuera{opacity:.1}
+.mapa path.hit{fill:none;stroke:transparent;stroke-width:12;cursor:pointer}
+.mapa .ar-g:hover path.ar{stroke:var(--ink);stroke-width:3;opacity:1}
+#mapa-fl path{fill:var(--muted)}
+#mapa-fl-act path{fill:var(--ink)}
+.leg i.l1,.leg i.l2{display:inline-block;width:26px;height:0;border-top:2px solid var(--muted);vertical-align:middle;margin-right:6px}
+.leg i.l2{border-top-style:dashed}
+.leg i.l3{display:inline-block;width:18px;height:11px;border:2px dashed var(--muted);border-radius:3px;vertical-align:middle;margin-right:6px}
+#mapa-panel .cx{list-style:none;padding:0;margin:6px 0 0}
+#mapa-panel .cx li{padding:5px 0;border-top:1px solid var(--soft)}
+#mapa-panel .cx .b{padding:1px 9px;font-size:13px;margin-right:6px}
+#mapa-panel .prop{display:inline-block;font-size:12px;font-weight:600;border:1px dashed var(--extra);color:var(--extra);border-radius:6px;padding:0 6px;margin-left:6px}
+
+/* ===== Widgets interactivos ===== */
+.w{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px 14px;margin:16px 0}
+.w>.wt{font-weight:600;margin:0 0 10px;font-size:15px;display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+.w>.wt span{font-weight:400;color:var(--muted);font-size:14px}
+.ctrl{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;margin:8px 0}
+.ctrl label{font-size:14px;color:var(--muted)}
+.ctrl input[type=range]{accent-color:var(--pair);width:200px;max-width:100%}
+.ctrl input[type=checkbox]{accent-color:var(--pair)}
+.ctrl input[type=text],.ctrl input[type=number],.ctrl select{font:inherit;font-size:14px;padding:5px 8px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink)}
+.seg{display:inline-flex;gap:0;flex-wrap:wrap}
+.seg .b{border-radius:0;margin-left:-1px}
+.seg .b:first-child{border-radius:7px 0 0 7px;margin-left:0}
+.seg .b:last-child{border-radius:0 7px 7px 0}
+.out{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-top:10px}
+.out div{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:6px 10px}
+.out small{display:block;color:var(--muted);font-size:12px;line-height:1.3}
+.out b{font-family:Bahnschrift,"DIN Alternate",system-ui,sans-serif;font-variation-settings:"wdth" 90;font-size:24px;font-weight:600}
+.info{margin-top:10px;padding:10px 12px;border-radius:8px;background:color-mix(in srgb,var(--pair) 8%,var(--panel));border:1px solid color-mix(in srgb,var(--pair) 30%,var(--line));min-height:3.2em;font-size:15px}
+.info b.n{font-family:Bahnschrift,system-ui,sans-serif;font-size:19px;font-weight:600}
+svg{max-width:100%}
+svg text{font-family:"Segoe UI",system-ui,sans-serif;fill:var(--ink)}
+svg .sm{font-size:12px}svg .md{font-size:14px}svg .b{font-weight:700}svg .mu{fill:var(--muted)}
+svg .ln{stroke:var(--ink);stroke-width:1.6;fill:none}
+.diagram{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px;margin:14px 0;overflow-x:auto}
+.diagram>svg{display:block;width:100%;max-width:620px;margin:0 auto;height:auto}
+.diagram.mapa>svg{max-width:none}
+.cap{font-size:13.5px;color:var(--muted);margin:6px 4px 0;max-width:none}
+.leg{display:flex;flex-wrap:wrap;gap:4px 16px;font-size:13px;color:var(--muted);margin:2px 0 8px}
+.chips{display:flex;flex-wrap:wrap;gap:5px;margin:6px 0}
+.chips .b{padding:2px 9px;font-size:13px}
+
+/* ===== Animaciones de los widgets (se desactivan con prefers-reduced-motion) ===== */
+@keyframes lb-cae{0%{transform:translateY(0)}55%,100%{transform:translateY(var(--cae))}}
+@keyframes lb-luz{0%,45%{opacity:.4}70%,100%{opacity:1}}
+.lb-e{animation:lb-cae 3.2s ease-in infinite}
+.lb-f{animation:lb-luz 3.2s ease-out infinite}
+@keyframes co-viaja{from{transform:translateX(0)}to{transform:translateX(var(--per))}}
+.co-onda{animation:co-viaja 3s linear infinite}
+
+/* ===== Autoevaluación ===== */
+details.q{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px 14px;margin:8px 0;max-width:78ch}
+details.q summary{cursor:pointer;font-weight:600}
+details.q[open]{border-color:var(--pair)}
+details.q[open] summary{margin-bottom:6px}
+
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Saltar al contenido</a>
+<div class="app">
+<aside class="rail">
+  <a class="brand" href="#/">Comunicaciones Ópticas<small>Apuntes · 4º GITT · 26/27</small></a>
+  <div class="search">
+    <input id="q" type="search" placeholder="Buscar: DFB, chirp, umbral… (tecla /)" aria-label="Buscar en los apuntes" autocomplete="off">
+    <div id="sres" hidden></div>
+  </div>
+  <button class="b menu-btn" id="menu-btn" type="button" aria-expanded="false" aria-controls="rail-menu">Menú</button>
+  <div id="rail-menu">
+    <nav id="nav" aria-label="Temas"></nav>
+    <div class="railfoot">
+      <span id="prog"></span>
+      <button class="b" id="theme" type="button">Cambiar a tema oscuro</button>
+      <button class="b" id="print" type="button">Imprimir todos los temas</button>
+    </div>
+  </div>
+</aside>
+
+<main id="main">
+<!-- ================================ INICIO ================================ -->
+<section class="page" id="p-home" data-page="home">
+  <h2>Mapa de conexiones</h2>
+  <p class="maplead">Cómo se relacionan los conceptos de la asignatura. Pulsa uno para ver qué es, dónde se explica y con qué se conecta. De momento hay apuntes del Tema 5 (WDM); lo demás aparece en gris y se irá activando cuando haya apuntes.</p>
+  <div class="w" data-w="mapa"></div>
+
+  <h3>Los apuntes de 5.2, paso a paso</h3>
+  <p>Las seis páginas forman un hilo: cada una lleva a la siguiente.</p>
+  <div data-hilo></div>
+
+  <div class="homegrid">
+    <div class="pn t" style="--pair:var(--orange)">
+      <h4>Cómo leer los colores</h4>
+      <div data-leyenda></div>
+    </div>
+    <div class="pn t tools" style="--pair:var(--blue)">
+      <h4>Páginas y herramientas</h4>
+      <a href="#/repaso">Modo repaso<small>Tarjetas con las preguntas de todas las páginas</small></a>
+      <a href="#/led">5.2.1 LED<small>Electroluminiscencia y luz del LED</small></a>
+      <a href="#/laser">5.2.2 Láser de semiconductor<small>Emisión estimulada y modulación</small></a>
+      <a href="#/fp">5.2.3 Fabry-Pérot<small>Resonador, Q y fineza</small></a>
+      <a href="#/ruido">5.2.4 Ruido en los láseres<small>Temperatura, umbral, chirp y jitter</small></a>
+      <a href="#/monomodo">5.2.5 Láser monomodo<small>DBR, DFB, pozos cuánticos</small></a>
+      <a href="#/wdm">5.2.6 WDM: DWDM y CWDM<small>Canales densos y gruesos</small></a>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 5.2.1 LED ============================ -->
+<section class="page tema" id="p-led" data-color="orange" data-title="LED" data-short="Electroluminiscencia y luz del LED" data-num="5.2.1" data-grupo="5.2" data-src="apuntes de clase del Tema 5">
+<h2>LED</h2>
+<p class="lead">Un LED convierte corriente eléctrica en luz (electroluminiscencia): es rápido, diminuto y barato, pero su luz es ancha, difusa e incoherente, y solo en torno al 1 % entra en la fibra.</p>
+
+<h3>¿Por qué convertir electricidad en luz?</h3>
+<p>La electroluminiscencia: conversión directa de una señal eléctrica en luz. Se usa porque toda nuestra electrónica de comunicación es eléctrica, y este tipo de emisión nos permite aprovechar a la vez las ventajas de cada tipo de señal. Se consigue con diodos capaces de producir luz (LED, diodos de semiconductor), lo que les da una serie de características:</p>
+<ul><li>
+Son muy rápidos: retardo nulo o mínimo frente a las señales electrónicas (conversión rapidísima).
+</li><li>
+Se pueden hacer de tamaño muy pequeño, del orden del núcleo de una fibra monomodo.
+</li><li>
+Producen poca potencia, pero con muy bajo consumo energético.
+</li><li>
+Hoy en día su coste es bajo.
+</li></ul>
+<p>En cambio, las fuentes térmicas necesitan mucha energía, tienen un gran retardo en la conversión y no producen luz coherente.</p>
+<aside class="ojo"><b>⚠ Revisar.</b> El LED tampoco emite luz coherente, porque su emisión es espontánea; la luz coherente es propia del láser (apuntes del profesor, pág. 32).</aside>
+<p>Otras luminiscencias (quimioluminiscencia, bioluminiscencia, etc.) tienen tiempos de modulación muy lentos.</p>
+
+<h3>¿Cómo emite luz un LED?</h3>
+<p><b>Mecanismo.</b> Un LED es un diodo semiconductor en polarización directa. El semiconductor tiene dos bandas, la de valencia y la de conducción, separadas por un gap, y la energía de ese gap coincide con la energía de los fotones que emite el LED. Esto ocurre porque en la unión PN se forman electrones y huecos: cuando suministro energía al material <span class="az">(la corriente en directa inyecta electrones de la zona n a la p)</span>, los electrones se recombinan con los huecos y cada recombinación produce un fotón con energía igual a la de esa recombinación.</p>
+<div class="w" data-w="ledbandas"></div>
+
+<h3>¿De qué materiales está hecho?</h3>
+<p><b>Materiales.</b> No todos los materiales valen: los de gap directo sí (p. ej., arseniuro de galio, GaAs) y los de gap indirecto no (p. ej., silicio)<span class="az">, porque en el gap indirecto la recombinación no produce luz (apuntes, pág. 30)</span>. Para los LED de comunicaciones combinamos átomos de la columna del nitrógeno… con los de la del boro, aluminio, galio… <span class="az">(grupos V y III; T21, diap. 11)</span>. Cuanto más arriba están en la tabla, más energía, menos longitud de onda y color más azulado; cuanto más abajo, más hacia el infrarrojo lejano. Me interesa el infrarrojo cercano, así que uso arseniuro de galio <span class="az">(GaAs: gap de 1,42 eV → 0,87 µm, 1.ª ventana; para la 2.ª y 3.ª ventana se usa InP como base; T21, diap. 11 y 14)</span>.</p>
+<aside class="extra"><b>Extra · Un Nobel por el LED azul.</b> Akasaki, Amano y Nakamura recibieron el Nobel de Física de 2014 por inventar el LED azul eficiente, con nitruro de galio. Sin luz azul no se podían hacer lámparas LED blancas.</aside>
+
+<h3>¿Cómo es su luz?</h3>
+<p><b>Espectrales.</b> La emisión del LED no es monocromática y tiene una anchura espectral de unos 50 nm <span class="az">(crece con λ²: a mayor longitud de onda, mayor anchura; T21, diap. 21)</span>. Por tanto, su uso estará restringido a sistemas sin multiplexación y a fibras multimodo. <span class="az">Es justo lo contrario de lo que pide DWDM (ver 5.2).</span></p>
+<p><b>Espaciales.</b> Tiene emisión lambertiana o difusa: la luz se emite con igual intensidad en todos los ángulos de un hemisferio; en otras palabras, un LED no posee coherencia espacial. Por tanto, si queremos acoplar un LED a un sistema de comunicaciones, tendremos que reducir su apertura numérica, es decir, utilizar lentes convergentes o pigtails: como emite en todas las direcciones del hemisferio, con ellos concentro la luz. Primero se concentra para subir el brillo y luego se desconcentra. <span class="az">Los LED se montan dentro de una cubierta que actúa de lente convergente, y los pigtails de índice gradual adaptan el índice del semiconductor (≈ 3,5) al de la fibra (≈ 1,46); aun así, solo se acopla en torno al 1 % de la luz (apuntes, pág. 32 y 34).</span></p>
+<p><b>Temporales.</b> La luz producida por un LED es incoherente: cada fotón tiene su propia fase <span class="az">(porque cada electrón se desexcita en un instante distinto, por emisión espontánea; apuntes, pág. 32)</span>. ¿Qué imagen produce entonces la iluminación LED? Una imagen continua: al final de una fibra o canal de comunicaciones observaremos un disco de luz plano. <span class="az">Como no hay información de fase,</span> no puedo reconstruir la señal, y si la potencia de la luz que viene de un LED es muy baja, el ruido poissoniano (shot) domina sobre la propia señal.</p>
+<div class="w" data-w="haz"></div>
+<div class="w" data-w="espectros"></div>
+
+<h3>¿Qué estructuras tiene?</h3>
+<p><b>Estructura interna.</b> Para optimizar la producción de luz hay dos opciones:</p>
+<ul><li>
+<b>Homoestructura (homounión):</b> utilizamos el mismo material en todo el LED, que se puede dopar <span class="az">con distintos niveles (apuntes, pág. 35)</span>.
+</li><li>
+<b>Heteroestructura:</b> combino distintos materiales dentro del mismo LED para aumentar la tasa de recombinación, fomentar la transparencia del medio (que sea más gradual, para que haya menos absorción y reflexión), aumentar su resistencia térmica, etc. Podemos tener algún tipo de cavidad o salto interno de índice de refracción que nos permita alterar la emisión de la luz por sus capacidades espectrales. <span class="az">Son más eficientes, por eso se usan más (apuntes, pág. 35).</span>
+</li></ul>
+<p><b>Estructura a gran escala o en bloque (cómo y por dónde sale la luz).</b> Hay dos tipos: emisión lateral y emisión superficial.</p>
+<aside class="ojo"><b>⚠ Revisar.</b> El apunte original decía «superficial (VCSEL)»; el VCSEL es un láser de emisión superficial, no un LED. El LED de emisión superficial típico de comunicaciones es el Burrus (T21, diap. 31; apuntes del profesor, pág. 46).</aside>
+<ul><li>
+<b>Emisión lateral:</b> por defecto los LED son de emisión lateral, es decir, la luz sale por una de las caras estrechas laterales, justo por la unión PN <span class="az">(en el plano de la unión, guiada por capas de menor índice; haz de unos 30 × 120°; T21, diap. 32)</span>.
+</li><li>
+<b>Emisión superficial:</b> <span class="az">la luz sale perpendicular a la capa activa, con diagrama lambertiano (T21, diap. 29).</span> Para aumentar la potencia del LED, o lo hago más grande o intento que toda la luz salga por la superficie.
+</li></ul>
+<p><b>Ventajas de cada una:</b></p>
+<ul><li>
+<b>Lateral:</b> es más barata y menos compleja. <span class="az">Según las diapositivas, además acopla la luz en la fibra de forma más eficiente y tiene mayor velocidad de modulación (T21, diap. 32).</span><aside class="ojo"><b>⚠ Revisar.</b> Lo de «más barata» no aparece en el material.</aside>
+</li><li>
+<b>Superficial:</b> saca más luz del mismo LED, evitando la absorción, por ejemplo, por temperatura (calor) <span class="az">(T21, diap. 32: el LED de superficie da más potencia)</span>.
+</li></ul>
+<p>Para comunicaciones se usa más el de emisión lateral: no necesitamos más superficie, porque la fibra es estrecha<span class="az">, y lo que importa es acoplar bien la luz en ella</span>.</p>
+
+<h3>¿Qué variables lo definen?</h3>
+<p>Eficiencia cuántica, potencia óptica, el cociente entre ellas, la eficiencia… y la explicación básica de cada una. <span class="az">Completado con el material:</span></p>
+<ul><li>
+<span class="az">Eficiencia cuántica: fracción de las recombinaciones que producen un fotón; el resto se pierde como calor por colisiones. Baja al subir la temperatura (apuntes, pág. 31–32).</span>
+</li><li>
+<span class="az">Potencia óptica y responsividad (P/I): potencia óptica emitida por unidad de corriente. Del orden de 0,01 W/A en un LED; baja con corrientes muy altas (&gt; 80 mA) al salir de la zona lineal de la curva P-I (apuntes, pág. 33).</span>
+</li><li>
+<span class="az">Anchura espectral: crece con λ² (apuntes, pág. 33; T21, diap. 21).</span>
+</li><li>
+<span class="az">Velocidad de modulación (ancho de banda): limitada por la vida media de los portadores (2–5 ns), lo que da centenares de MHz. El producto potencia × ancho de banda es constante (apuntes, pág. 33; T21, diap. 26–27).</span>
+</li></ul>
+<p>No por ser algo muy eficiente cuánticamente es muy eficiente lumínicamente <span class="az">(por ejemplo, aunque genere muchos fotones, solo en torno al 1 % se acopla a la fibra; apuntes, pág. 34)</span>, y lo mismo pasa con otras eficiencias propias de un LED. El LED tiene un límite: es difícilmente escalable, mientras que la bombilla sí lo es.</p>
+
+<h3>Dónde se usa y sus límites</h3>
+<p><b>Rendimiento.</b> Del orden de cientos de MHz; hoy en día dan como mucho 1 Gbps en menos de 1 km.</p>
+<aside class="ojo"><b>⚠ Revisar.</b> Eso es el ancho de banda o velocidad de modulación, no el rendimiento. Para el rendimiento, los apuntes del profesor dan una responsividad ≈ 0,01 W/A (pág. 33) y que solo se acopla a la fibra en torno al 1 % de la luz del LED (pág. 34).</aside>
+<p>Se suelen usar con fibras multimodo de índice gradual (perfil parabólico).</p>
+<aside class="extra"><b>Extra · El LED de tu mando a distancia.</b> El mando de la tele lleva un LED infrarrojo que suele emitir en torno a 940 nm: no lo ve el ojo, pero el receptor de la tele sí.</aside>
+
+<h3 class="autoev">Autoevaluación</h3>
+<details class="q" data-par="41"><summary>¿Qué tipo de luminiscencia se utiliza para las fuentes de comunicaciones ópticas y cuáles son sus ventajas respecto a otros emisores de luz?</summary><div>La electroluminiscencia: conversión directa de una señal eléctrica en luz, con diodos (LED). Los LED son muy rápidos, muy pequeños, de poca potencia pero muy bajo consumo y de bajo coste. Las fuentes térmicas gastan mucha energía, convierten con gran retardo y no dan luz coherente.</div></details>
+<details class="q" data-par="49"><summary>¿Cuáles son los mecanismos de emisión de luz en un LED, qué materiales se usan en LED de comunicaciones y cuál es su rendimiento aproximado?</summary><div>Es un diodo en polarización directa: los electrones se recombinan con los huecos y cada recombinación emite un fotón con la energía del gap. Valen los materiales de gap directo (GaAs) y no los de gap indirecto (silicio); se combinan átomos de los grupos III y V. El rendimiento es de cientos de MHz: hoy, como mucho 1 Gbps en menos de 1 km.</div></details>
+<details class="q" data-par="54"><summary>Describe las características de la luz emitida por un LED: características espectrales, espaciales y temporales.</summary><div>Espectral: no es monocromática (≈ 50 nm), así que solo sirve sin multiplexación y con fibra multimodo. Espacial: emisión lambertiana, difusa; hace falta lente o pigtail y aun así solo se acopla ≈ 1 %. Temporal: luz incoherente, cada fotón con su propia fase.</div></details>
+<details class="q" data-par="63"><summary>Tipos de estructuras LED, ventajas e inconvenientes.</summary><div>Internamente puede ser una homoestructura (mismo material) o una heteroestructura (materiales distintos, más eficiente y por eso más usada). A gran escala, de emisión lateral (la luz sale por la unión PN) o superficial (perpendicular a la capa activa). Para comunicaciones se usa más la lateral.</div></details>
+<details class="q" data-par="74"><summary>Describe las principales variables que definen las características de un LED.</summary><div>La eficiencia cuántica, la potencia óptica y la responsividad, la anchura espectral (crece con λ²) y la velocidad de modulación (centenares de MHz). Ser muy eficiente cuánticamente no implica serlo en luz útil: solo ≈ 1 % de la luz entra en la fibra.</div></details>
+</section>
+
+<!-- ============================ 5.2.2 LÁSER DE SEMICONDUCTOR ============================ -->
+<section class="page tema" id="p-laser" data-color="orange" data-title="Láser de semiconductor" data-short="Emisión estimulada y modulación" data-num="5.2.2" data-grupo="5.2" data-src="apuntes de clase del Tema 5">
+<h2>Láser de semiconductor</h2>
+<p class="lead">El láser emite luz muy monocromática, coherente y en un cono estrecho, lo que permite multiplexar y usar fibra monomodo; y se puede modular de forma directa (barata, pero con retardo y chirp) o con un modulador externo.</p>
+
+<h3>¿Qué lo diferencia de un LED?</h3>
+<p>Resumen de las tres características de la luz (espectral, espacial y temporal) tal como las describen los apuntes:</p>
+<div class="tw"><table>
+  <tr><th></th><th>LED</th><th>Láser</th></tr>
+  <tr><td><b>Espectral</b></td><td>No es monocromática: ≈ 50 nm</td><td>Muy monocromática: &lt; 1 nm en un monomodo como el DFB (un FP, unos 4 nm)</td></tr>
+  <tr><td><b>Espacial</b></td><td>Emisión lambertiana, difusa: sin coherencia espacial. Se acopla ≈ 1 % a la fibra</td><td>Cono estrecho: coherencia espacial y acoplo más eficiente</td></tr>
+  <tr><td><b>Temporal</b></td><td>Incoherente (emisión espontánea): cada fotón con su fase</td><td>Coherente (emisión estimulada): todos los fotones en fase</td></tr>
+  <tr><td><b>Dónde sirve</b></td><td>Sistemas sin multiplexación y fibra multimodo</td><td>Sistemas multiplexados y fibra monomodo</td></tr>
+</table></div>
+<div class="w" data-w="coherencia"></div>
+
+<h3>¿Cómo es su luz?</h3>
+<p><b>Espectrales.</b> La luz es muy monocromática, con una anchura espectral inferior a 1 nm: unas 50 veces más monocromática que la de un LED. Esto permite usarlo en sistemas multiplexados y con fibras monomodo.</p>
+<aside class="ojo"><b>⚠ Revisar.</b> &lt; 1 nm corresponde a láseres monomodo como el DFB; un láser Fabry-Pérot multimodo tiene una anchura de varios nm, unos 4 nm (T22, diap. 13; apuntes del profesor, pág. 44).</aside>
+<p><b>Espaciales.</b> Estos láseres poseen coherencia espacial: su emisión se concentra en un cono estrecho de luz, lo que facilita su acoplamiento a las fibras ópticas <span class="az">(el acoplo es más eficiente que en un LED; T22, diap. 13). Aun así, como la región activa es muy delgada, el haz diverge más que en otros tipos de láser (T22, diap. 14)</span>.</p>
+<p><b>Temporales.</b> La luz láser es coherente: todos sus fotones están en fase <span class="az">(solo la emisión estimulada produce luz coherente; T22, diap. 4)</span>. Por eso, ante cualquier mínimo defecto o alteración del medio de propagación, produce interferencias que se ven como un patrón de moteado <span class="az">(speckle)</span>. Este tipo de luz resiste mejor el ruido poissoniano (shot), porque al disponer de la información de fase puedo reconstruir la señal mediante técnicas de detección coherente; incluso con un único fotón podría reconstruir la señal, siempre que conozca la modulación.</p>
+<aside class="ojo"><b>⚠ Revisar.</b> La detección coherente y lo del fotón único no aparecen en el material de este tema: es un comentario de clase.</aside>
+<aside class="extra"><b>Extra · El láser violeta del Blu-ray.</b> El láser de los discos Blu-ray emite en el violeta, a 405 nm, y se basa en pozos cuánticos de nitruro de galio.</aside>
+
+<h3>¿Cómo se modula?</h3>
+<p>Hay dos tipos básicos: modulación directa y modulación externa.</p>
+<ul><li>
+<b>Directa:</b> se varía la potencia de emisión del láser para construir la señal, variando directamente la alimentación eléctrica del propio láser.
+</li><li>
+<b>Externa:</b> el láser funciona en régimen continuo (potencia siempre la misma) y se usa un elemento óptico externo para variar la intensidad de la luz.
+</li></ul>
+<p><b>Directa, ventajas:</b> es barata y no necesita ningún elemento óptico adicional. El láser no se enciende y apaga del todo: siempre funciona por encima del umbral <span class="az">(para evitar el jitter; ver «Ruido en los láseres»)</span>.</p>
+<p><b>Directa, inconvenientes:</b> retardo de la señal respecto al pulso electrónico, estrés térmico en el láser (durará menos) e introducción de ruidos, sobre todo chirp y algo de jitter. Unos 1 Gbps.</p>
+<aside class="ojo"><b>⚠ Revisar.</b> El material da cifras más altas para la directa: unos 25 GHz de ancho de banda con 80 mA de polarización (apuntes del profesor, pág. 43) y «modulable hasta centenas de GHz» (T22, diap. 13). Conviene comprobar de dónde sale 1 Gbps.</aside>
+<p><b>Externa, ventajas:</b> el láser no sufre gracias al régimen continuo, y la velocidad de modulación es mucho mayor, casi 100 veces más: unos 100 Gbps. <span class="az">Además evita el chirp (T22, diap. 58), y por eso es la que se usa en la mayoría de los sistemas actuales (apuntes, pág. 43).</span></p>
+<p><b>Externa, inconvenientes:</b> necesitamos un elemento externo costoso.</p>
+<div class="w" data-w="modulacion"></div>
+
+<h3 class="autoev">Autoevaluación</h3>
+<details class="q" data-par="59"><summary>Describe las características de la luz emitida por un láser de semiconductor: espectrales, espaciales y temporales (la misma pregunta que la 3, pero para el láser).</summary><div>Espectral: muy monocromática (&lt; 1 nm en un monomodo como el DFB; un FP, unos 4 nm), apta para sistemas multiplexados y fibra monomodo. Espacial: coherencia espacial, emisión en un cono estrecho que se acopla mejor a la fibra. Temporal: luz coherente, con todos los fotones en fase (solo la produce la emisión estimulada).</div></details>
+<details class="q" data-par="96"><summary>Tipos de modulación de un láser, con sus ventajas e inconvenientes.</summary><div>Directa: se varía la corriente del propio láser; es barata y no necesita elementos extra, pero introduce retardo, estrés térmico, chirp y jitter. Externa: el láser trabaja en continuo y un elemento externo varía la intensidad; evita el chirp y llega a velocidades mucho mayores, pero necesita un elemento externo costoso.</div></details>
+</section>
+
+<!-- ============================ 5.2.3 FABRY-PÉROT ============================ -->
+<section class="page tema" id="p-fp" data-color="orange" data-title="Fabry-Pérot" data-short="Resonador, Q y fineza" data-num="5.2.3" data-grupo="5.2" data-src="apuntes de clase del Tema 5">
+<h2>Fabry-Pérot</h2>
+<p class="lead">Un Fabry-Pérot son dos espejos paralelos que sirven de interferómetro y de resonador del láser; su calidad se mide con Q, fineza y rango espectral libre, y se quieren lo más altos posible.</p>
+
+<h3>¿Qué es y para qué sirve?</h3>
+<p>Un interferómetro Fabry-Pérot es una cavidad resonante formada por dos espejos paralelos <span class="az">(dieléctricos, con reflectividades superiores al 99 %; apuntes, pág. 37). Tiene dos usos:</span></p>
+<ul><li>
+<b>Como interferómetro:</b> provoca la interferencia de los haces de luz que introducimos desde fuera, así que funciona como un analizador espectral: descompone la luz en sus componentes espectrales.
+</li><li>
+<b>Como resonador de un láser:</b> rodeando un medio activo, descompone la luz en sus componentes monocromáticas y la hace más coherente. <span class="az">La longitud de onda del láser tiene que coincidir con una de las resonancias de la cavidad (modos longitudinales). Como un FP deja pasar varios modos longitudinales, para DWDM hacen falta láseres monomodo como DFB o DBR (ver 5.2; apuntes, pág. 37).</span>
+</li></ul>
+<aside class="extra"><b>Extra · De dónde viene el nombre.</b> El interferómetro Fabry-Pérot lleva el nombre de los físicos franceses Charles Fabry y Alfred Pérot, que lo describieron en 1899.</aside>
+<aside class="extra"><b>Extra · Fabry-Pérot a lo grande.</b> Los brazos de 4 km de LIGO, el detector de ondas gravitacionales, son cavidades Fabry-Pérot: la luz rebota entre dos espejos para aumentar el tiempo que interacciona con la onda.</aside>
+
+<h3>¿Por qué aumenta la coherencia?</h3>
+<p><b>¿Por qué aumenta la coherencia?</b> Debido a las múltiples reflexiones, el recorrido efectivo de la luz se multiplica enormemente, y eso hace que solo sobrevivan las interferencias constructivas: lo que está en fase sobrevive. Se parece a la luz de las estrellas: al recorrer una distancia enorme es muy coherente, porque solo sobreviven los fotones en fase.</p>
+
+<h3>¿Cómo se mide su calidad?</h3>
+<p><b>Variables que lo definen.</b> Su factor de calidad Q, que da todas sus características (otras, como la longitud, importan cuando Q no es muy alto). Q depende de:</p>
+<ul><li>
+la reflectividad de los espejos: a mayor reflectividad, mayor Q;
+</li><li>
+la calidad óptica de los espejos: cuanto más lisa y mejor pulida esté la superficie, mayor Q;
+</li><li>
+el alineamiento geométrico: cuanto más paralelos estén los espejos, mayor Q;
+</li><li>
+<span class="az">la distancia entre los espejos (apuntes, pág. 38).</span>
+</li></ul>
+<p>Un Q típico de alta calidad es 100 000; el de un Fabry-Pérot de láser de comunicaciones, 1000 (bajo), «bajo un diapasón».</p>
+<aside class="ojo"><b>⚠ Revisar.</b> Estos valores de Q no están en el material y no queda claro qué significa «bajo un diapasón»; conviene revisarlo con las notas de clase.</aside>
+<p><span class="az">Un Q alto implica una fineza alta (apuntes, pág. 38). Las otras dos variables son:</span></p>
+<ul><li>
+<b>Fineza:</b> relacionada con la anchura espectral de las líneas que produce el Fabry-Pérot: a menor anchura espectral, mayor fineza. <span class="az">Más exactamente, es el rango espectral libre dividido entre la anchura de cada línea a semialtura (apuntes, pág. 39).</span>
+</li><li>
+<b>Rango espectral libre:</b> es la separación entre líneas <span class="az">(entre los picos de dos anillos consecutivos; apuntes, pág. 38)</span>.
+</li></ul>
+<div class="w" data-w="resonador"></div>
+
+<h3>¿Qué buscamos maximizar?</h3>
+<p>Nos interesa una fineza lo más alta posible y un rango espectral libre lo más alto posible, es decir, maximizar ambos. Eso exige la máxima reflectividad, la máxima calidad óptica y el mejor alineamiento que se pueda conseguir en los elementos ópticos.</p>
+
+<h3 class="autoev">Autoevaluación</h3>
+<details class="q" data-par="81"><summary>Explica el funcionamiento o los mecanismos y las aplicaciones de los interferómetros (resonadores) Fabry-Pérot (FP).</summary><div>Es una cavidad resonante de dos espejos paralelos (reflectividad superior al 99 %). Como interferómetro descompone la luz de entrada en sus componentes espectrales; como resonador de un láser la hace más coherente, porque tras muchas reflexiones solo sobreviven las interferencias constructivas. Su calidad la dan Q, la fineza y el rango espectral libre: interesa que sean lo más altos posible.</div></details>
+</section>
+
+<!-- ============================ 5.2.4 RUIDO EN LOS LÁSERES ============================ -->
+<section class="page tema" id="p-ruido" data-color="orange" data-title="Ruido en los láseres" data-short="Temperatura, umbral, chirp y jitter" data-num="5.2.4" data-grupo="5.2" data-src="apuntes de clase del Tema 5">
+<h2>Ruido en los láseres</h2>
+<p class="lead">Casi todo el ruido del láser viene de fuera, sobre todo de la temperatura y de la corriente; por eso se estabilizan, y por eso el láser nunca se apaga del todo: un 0 no es «cero fotones».</p>
+
+<h3>¿De dónde viene?</h3>
+<p>La mayor parte de los defectos no vienen del láser, sino de acciones externas sobre él:</p>
+<ul><li>
+<b>Temperatura:</b> si aumenta la temperatura, aumenta la longitud de onda, porque la cavidad se dilata y el láser se hace más «grande». Por eso una fluctuación de temperatura hace que la longitud de onda también fluctúe y oscile, y las líneas espectrales son mucho más anchas, lo que afecta a otras cosas. Es muy importante estabilizar la temperatura. <span class="az">Además, la corriente umbral crece exponencialmente con la temperatura y la emisión se degrada por encima de 50 °C, por lo que los láseres de comunicaciones se refrigeran con enfriadores Peltier (apuntes, pág. 41).</span>
+</li><li>
+<b>Corriente de la fuente:</b> si la corriente fluctúa, aunque sea mínimamente, provoca grandes variaciones de la intensidad (potencia) del láser.
+</li></ul>
+<p>Por debajo de la corriente umbral (o crítica), el láser actúa como un LED; una vez que llega al umbral, es un láser. <span class="az">Por debajo domina la emisión espontánea y por encima la estimulada (apuntes, pág. 41). Este umbral vuelve a aparecer más abajo, en el jitter.</span></p>
+<div class="w" data-w="curvapi"></div>
+<aside class="extra"><b>Extra · ¿Cuánto se mueve la longitud de onda?</b> En las hojas de datos de láseres DFB la longitud de onda cambia del orden de 0,06 a 0,12 nm por cada grado. El interactivo usa 0,1 nm/°C como valor típico.</aside>
+<div class="w" data-w="deriva"></div>
+
+<h3>Los cinco tipos de ruido</h3>
+<p><span class="az">A partir de estas causas, los tipos de ruido son:</span></p>
+<ol><li>
+<b>Ruido térmico.</b><aside class="ojo"><b>⚠ Revisar.</b> En los apuntes del profesor (§5.2.5) el ruido térmico no aparece como ruido del láser: allí la temperatura se presenta como causa del salto de modos (punto 3). El ruido térmico sí aparece en los fotodetectores (§6.3). Conviene comprobarlo con las notas de clase.</aside>
+</li><li>
+<b>Fluctuaciones de potencia</b> <span class="az">(ruido de intensidad relativa, RIN): inestabilidad del nivel de potencia por vibraciones en la cavidad o fluctuaciones del medio activo. Valores típicos de −130 a −160 dB/Hz (apuntes, pág. 46; T22, diap. 53).</span>
+</li><li>
+<b>Ruido de cambio de modo (intermodal).</b> <span class="az">Incluye el ruido modal (interferencia entre modos próximos o reflexiones externas, que se evitan con un aislador) y el salto de modos (mode hopping) por cambios de temperatura (T22, diap. 54–56).</span>
+</li><li>
+<b>Ruido shot (Poisson)</b><span class="az">: se debe a la naturaleza fotónica de la luz; a mayor potencia de emisión, menor ruido (apuntes, pág. 47).</span>
+</li><li>
+<b>Ruido de modulación:</b>
+</li></ol>
+
+<h3>Ruido de modulación: chirp y jitter</h3>
+<ul><li>
+<b>Chirp:</b> <span class="az">al aumentar la corriente disminuye el índice de refracción de la cavidad, lo que ensancha el espectro al modular directamente. Soluciones: disminuir la relación de extinción o usar modulación externa (T22, diap. 58).</span>
+</li><li>
+<b>Jitter:</b> retardo que aparece al modular directamente, al pasar de dejar el láser sin potencia a volver a cargarlo a su valor <span class="az">(tiempo de encendido; T22, diap. 51)</span>. Por eso los láseres no se modulan apagándolos del todo: el láser siempre se mantiene como mínimo un poco por encima de la corriente umbral <span class="az">(corriente de polarización o bias mayor que I<sub>th</sub>; T22, diap. 51)</span>. Así, un 0 en comunicaciones ópticas no es 0 fotones, sino un nivel por encima del umbral, y la diferencia entre el valor máximo y el umbral es el valor del bit.<aside class="ojo"><b>⚠ Revisar.</b> Donde el apunte original dice «o algo»: la relación entre la potencia del 1 y la del 0 se llama relación de extinción. T22, diap. 58, la nombra, pero la definición no está en el material.</aside>
+</li></ul>
+<p>Para ver el jitter, usa la vista «Bits sobre el umbral» del primer interactivo de esta página.</p>
+
+<h3>¿Cómo se combate?</h3>
+<p>Resumen de lo que dicen los apartados anteriores:</p>
+<ul>
+  <li><b>Temperatura:</b> se estabiliza con enfriadores Peltier (ver <a href="#/ruido/ruido-s1">¿De dónde viene?</a>).</li>
+  <li><b>Reflexiones externas (ruido modal):</b> se evitan con un aislador (ver <a href="#/ruido/ruido-s2">los cinco tipos de ruido</a>).</li>
+  <li><b>Jitter:</b> el láser se mantiene siempre por encima de la corriente umbral (ver <a href="#/ruido/ruido-s3">chirp y jitter</a>).</li>
+  <li><b>Chirp:</b> menor relación de extinción o modulación externa (ver <a href="#/ruido/ruido-s3">chirp y jitter</a>).</li>
+</ul>
+<aside class="extra"><b>Extra · Un refrigerador dentro del láser.</b> Los láseres DFB de telecomunicación suelen montarse en cápsulas «butterfly» de 14 pines que incluyen un refrigerador termoeléctrico (Peltier) y un termistor para mantener la temperatura estable.</aside>
+
+<h3 class="autoev">Autoevaluación</h3>
+<details class="q" data-par="104"><summary>Tipos de ruido que puede sufrir un láser.</summary><div>Ruido térmico, fluctuaciones de potencia (ruido de intensidad relativa, RIN), ruido de cambio de modo (intermodal: ruido modal y salto de modos), ruido shot (Poisson) y ruido de modulación (chirp y jitter).</div></details>
+<details class="q" data-origen="propia"><summary>¿Por qué los láseres de comunicaciones se refrigeran y se polarizan por encima del umbral?</summary><div>Porque la temperatura cambia la longitud de onda y hace crecer exponencialmente la corriente umbral (por encima de ≈ 50 °C la emisión se degrada), y porque, si el láser se apaga del todo, aparece el jitter: el 0 no es «cero fotones», sino un nivel por encima del umbral.</div></details>
+<details class="q" data-origen="propia"><summary>¿Qué es el chirp y cómo se evita?</summary><div>Al modular directamente, el índice de refracción de la cavidad disminuye cuando aumenta la corriente y el espectro se ensancha. Se reduce con una relación de extinción menor o, mejor, con modulación externa.</div></details>
+</section>
+
+<!-- ============================ 5.2.5 LÁSER MONOMODO ============================ -->
+<section class="page tema" id="p-monomodo" data-color="orange" data-title="Láser monomodo" data-short="DBR, DFB, pozos cuánticos" data-num="5.2.5" data-grupo="5.2" data-src="apuntes de clase del Tema 5">
+<h2>Láser monomodo</h2>
+<p class="lead">Para DWDM hace falta un láser con un solo pico y la longitud de onda controlada con fracciones de nm: se consigue con los materiales y estructuras adecuados, un filtro de modos (DBR o DFB) y un ajuste fino.</p>
+
+<h3>¿Qué necesito y por qué?</h3>
+<p>En DWDM los canales están separados décimas de nm, así que el láser tiene que emitir un único pico y con la longitud de onda muy controlada (ver <a href="#/wdm/wdm-s2">por qué WDM exige láseres tan precisos</a>).</p>
+<p>La fabricación tiene varias etapas:</p>
+<ol>
+  <li>Elegir los materiales.</li>
+  <li>Usar estructuras más complejas (heteroestructuras, pozos cuánticos).</li>
+  <li>Quedarse con un solo modo (DBR o DFB).</li>
+  <li>Afinar la sintonización.</li>
+</ol>
+
+<h3>Paso 1: materiales</h3>
+<ol><li>
+<b>Materiales:</b> necesito compuestos cuaternarios, o incluso de 5 elementos, de las dos columnas vistas antes <span class="az">(grupos III y V; combinándolos se ajustan el gap y la constante de red. T21, diap. 14)</span>.
+</li></ol>
+
+<h3>Paso 2: estructuras</h3>
+<ol start="2"><li>
+<b>Estructuras más complejas:</b>
+<ul><li>
+<b>Heteroestructuras:</b> no uso siempre el mismo material, sino un emparedado de capas de distintos materiales para sintonizar mejor el gap.
+</li><li>
+La propia cavidad del láser puede tener otra depresión, creando o suprimiendo modos.<aside class="ojo"><b>⚠ Revisar.</b> Frase poco clara en los apuntes. Quizá se refiere a los láseres de cavidad acoplada, que usan una cavidad externa con un ligero desfase para seleccionar el modo (apuntes del profesor, pág. 45).</aside>
+</li><li>
+<b>Pozos cuánticos:</b> creo capas del orden de la longitud de onda del propio electrón (≈ 1 nm) con semiconductores diferentes, de modo que el electrón queda confinado en una cavidad. Su función de onda se parece a la de la luz: el electrón queda atrapado formando una onda estacionaria. <span class="az">Así su energía queda cuantizada:</span> se crea un pozo de potencial con el electrón atrapado, y la diferencia de altura del pozo es el ΔE. Controlando la anchura del pozo controlo el gap <span class="az">y, por tanto, la longitud de onda emitida, con mucha precisión (apuntes, pág. 46)</span>.
+</li></ul>
+</li></ol>
+<aside class="ojo"><b>⚠ Revisar.</b> El apunte indica capas del orden de 1 nm; en la bibliografía habitual los pozos cuánticos son de unos 5–10 nm. Conviene comprobarlo.</aside>
+<div class="w" data-w="pozo"></div>
+<aside class="extra"><b>Extra · Un Nobel por las capas finas.</b> Zhores Alferov y Herbert Kroemer recibieron en 2000 la mitad del Nobel de Física por desarrollar las heteroestructuras de semiconductor: capas finas de materiales distintos apiladas, base de la optoelectrónica y de la electrónica de alta velocidad.</aside>
+
+<h3>Paso 3: quedarse con un solo modo</h3>
+<ol start="3"><li>
+<b>Filtrado monomodo:</b> <span class="az">una vez que el medio activo emite en la longitud de onda adecuada, hay que quedarse con un solo modo. Hay dos formas:</span>
+<ul><li>
+<b>DBR:</b> los propios espejos del Fabry-Pérot son filtros que dejan pasar una única longitud de onda <span class="az">(las caras de la cavidad se sustituyen por dos redes de Bragg; T22, diap. 59)</span>.
+</li><li>
+<b>DFB:</b> el propio medio activo hace de filtro: el semiconductor donde se generan los fotones está estructurado como un hojaldre, y cada capa tiene un índice de refracción distinto <span class="az">(red de Bragg grabada a lo largo de toda la cavidad; T22, diap. 60). Son los más usados en DWDM (apuntes, pág. 45)</span>.
+</li></ul>
+</li></ol>
+<div class="w" data-w="dbrdfb"></div>
+<aside class="extra"><b>Extra · El origen del DFB.</b> La idea del láser de realimentación distribuida (DFB) la presentaron Kogelnik y Shank en 1971, en los laboratorios Bell, primero con láseres de colorante: en vez de espejos, la realimentación la da una variación periódica del índice de refracción (reflexión de Bragg).</aside>
+
+<h3>Paso 4: sintonización fina</h3>
+<ol start="4"><li>
+<b>Sintonización:</b> por temperatura u otros efectos, el láser puede estar ligeramente desviado de lo que necesito. Para el ajuste fino hay que modificar la cavidad, y esto se hace con un piezoeléctrico: en uno de los extremos se pone un actuador piezoeléctrico (cuarzo u otros) que presiona el láser con precisión atómica, modificando justo las centésimas de nm que necesito. <span class="az">Esto enlaza con el apartado siguiente: la temperatura es una de las principales causas de esa desviación.</span>
+</li></ol>
+
+<h3 class="autoev">Autoevaluación</h3>
+<details class="q" data-origen="propia"><summary>¿Por qué hace falta un láser monomodo para DWDM?</summary><div>Porque los canales están separados fracciones de nm y la longitud de onda debe controlarse con mucha precisión: se necesita un único pico (DFB o DBR) y no varios modos.</div></details>
+<details class="q" data-origen="propia"><summary>¿En qué se diferencian el DBR y el DFB?</summary><div>En el DBR, los espejos del Fabry-Pérot son filtros que dejan pasar una única longitud de onda (redes de Bragg). En el DFB, el propio medio activo hace de filtro: está estructurado como un hojaldre de capas con distinto índice de refracción. El DFB es el más usado en DWDM.</div></details>
+<details class="q" data-origen="propia"><summary>¿Qué es un pozo cuántico y para qué sirve?</summary><div>Son capas muy finas de semiconductores diferentes que confinan al electrón, atrapado como una onda estacionaria; su energía queda cuantizada. Controlando la anchura del pozo se controla el gap y, por tanto, la longitud de onda emitida con mucha precisión.</div></details>
+</section>
+
+<!-- ============================ 5.2.6 WDM: DWDM Y CWDM ============================ -->
+<section class="page tema" id="p-wdm" data-color="blue" data-title="WDM: DWDM y CWDM" data-short="Canales densos y gruesos" data-num="5.2.6" data-grupo="5.2" data-src="apuntes de clase del Tema 5">
+<h2>WDM: DWDM y CWDM</h2>
+<p class="lead">WDM mete varias longitudes de onda en una sola fibra: DWDM con canales muy juntos y láseres muy precisos; CWDM con canales más separados, más tolerante y más barato.</p>
+
+<h3>¿Qué es WDM?</h3>
+<p><span class="az">WDM consiste en combinar varias longitudes de onda portadoras dentro de una única fibra (T52, diap. 3).</span> Es una multiplexación en frecuencia, pero aquí la expresamos en longitud de onda; en el fondo es lo mismo.</p>
+<aside class="extra"><b>Extra · El Nobel de la fibra óptica.</b> Todo esto viaja por fibra óptica. Charles Kao recibió en 2009 la mitad del Nobel de Física por sus logros sobre la transmisión de luz en fibras para comunicaciones ópticas.</aside>
+
+<h3>¿Por qué exige láseres tan precisos?</h3>
+<p>La ventana de mínima atenuación es la de 1550 nm <span class="az">(apuntes, §2.2)</span>. En los sistemas modernos trabajamos en esa ventana con canales separados solo décimas de nm<span class="az">, así que la longitud de onda de cada láser tiene que estar controlada con mucha precisión.</span></p>
+<p>Para ver qué pasa cuando la temperatura mueve la longitud de onda de un canal, prueba el interactivo de <a href="#/ruido/ruido-s1">Ruido en los láseres</a>.</p>
+<p>Por defectos de fabricación es imposible tener dos láseres iguales: fabricamos una oblea, de ella sacamos muchos láseres más pequeños, se comprueban y luego se controla de forma más fina su longitud de onda según el sistema WDM en el que se usen. <span class="az">Según lo separados que estén los canales, hay dos tipos de WDM:</span></p>
+
+<h3>DWDM: canales densos</h3>
+<ul><li>
+<b>DWDM</b>: agrupación densa de canales, muchos canales muy próximos. <span class="az">Según la ITU (G.694.1), la separación va de 12,5 a 100 GHz (T52, diap. 4); en 1550 nm, 100 GHz ≈ 0,8 nm (cálculo propio, no aparece en el material).</span><aside class="ojo"><b>⚠ Revisar.</b> En clase aparece «dentro de una misma lambda»; en realidad son muchas lambdas (longitudes de onda) distintas muy juntas dentro de la misma ventana.</aside>
+<ul><li>
+Como hay que controlar estas longitudes de onda con fracciones de nm, los láseres tienen que ser <b>monomodo (DFB, DBR)</b>: láseres en los que filtramos la luz de forma adicional para quedarnos con un único modo, un único pico.
+</li></ul>
+</li></ul>
+
+<h3>CWDM: canales gruesos</h3>
+<ul><li>
+<b>CWDM</b>: agrupación gruesa de canales. FP = Fabry-Pérot. <span class="az">Como los canales están más separados (plan de 1271 a 1611 nm), admite láseres sin refrigeración, tolerancias de longitud de onda menos exigentes y filtros anchos, por lo que es más barato (T52, diap. 7 y 9).</span>
+</li></ul>
+<div class="w" data-w="planes"></div>
+<aside class="extra"><b>Extra · WDM en la fibra que llega a casa.</b> En GPON, la fibra hasta el hogar, el sentido de bajada va en torno a 1490 nm, el de subida en torno a 1310 nm y el vídeo opcional en 1550–1560 nm: tres longitudes de onda en una misma fibra.</aside>
+<aside class="extra"><b>Extra · CWDM en los centros de datos.</b> Los módulos de 100 Gb/s CWDM4 de los centros de datos usan cuatro longitudes de onda (1271, 1291, 1311 y 1331 nm) en un solo par de fibras, hasta 2 km.</aside>
+
+<h3>DWDM frente a CWDM</h3>
+<p>Resumen de las diferencias que recogen los apuntes:</p>
+<div class="tw"><table>
+  <tr><th></th><th>DWDM</th><th>CWDM</th></tr>
+  <tr><td><b>Canales</b></td><td>Muchos y muy próximos</td><td>Más separados (plan de 1271 a 1611 nm)</td></tr>
+  <tr><td><b>Separación</b></td><td>De 12,5 a 100 GHz (ITU, G.694.1); 100 GHz ≈ 0,8 nm en 1550 nm</td><td>Mucho mayor: canales a varios nm</td></tr>
+  <tr><td><b>Láser</b></td><td>Monomodo (DFB, DBR)</td><td>Admite láseres FP, sin refrigeración</td></tr>
+  <tr><td><b>Longitud de onda</b></td><td>Controlada con fracciones de nm</td><td>Tolerancias menos exigentes</td></tr>
+  <tr><td><b>Filtros y coste</b></td><td>Más exigentes y más caro</td><td>Filtros anchos: más barato</td></tr>
+</table></div>
+
+<h3 class="autoev">Autoevaluación</h3>
+<details class="q" data-origen="propia"><summary>¿Qué es WDM y por qué se habla de longitud de onda y no de frecuencia?</summary><div>Es combinar varias longitudes de onda portadoras dentro de una única fibra. Es una multiplexación en frecuencia, pero aquí se expresa en longitud de onda; en el fondo es lo mismo.</div></details>
+<details class="q" data-origen="propia"><summary>¿En qué se diferencian DWDM y CWDM?</summary><div>DWDM agrupa muchos canales muy próximos (de 12,5 a 100 GHz): exige láseres monomodo (DFB, DBR) con la longitud de onda controlada con fracciones de nm. CWDM usa canales más separados (plan de 1271 a 1611 nm): admite láseres sin refrigeración, tolerancias menos exigentes y filtros anchos, y por eso es más barato.</div></details>
+<details class="q" data-origen="propia"><summary>¿Qué ventana se usa en los sistemas modernos y por qué?</summary><div>La de 1550 nm, que es la de mínima atenuación. Allí se trabaja con canales separados décimas de nm, por lo que la longitud de onda de cada láser debe estar muy controlada.</div></details>
+</section>
+
+
+<!-- ================================ REPASO ================================ -->
+<section class="page" id="p-repaso" data-page="repaso" data-title="Repaso">
+  <h2>Modo repaso</h2>
+  <p class="lead">Una pregunta cada vez, de todas las páginas. Piensa la respuesta antes de mirarla y marca si la sabías. Lo que marques como «repasar» vuelve a salir antes.</p>
+  <div class="ctrl"><label for="rtema">Página</label><select id="rtema"></select>
+    <button class="b" id="rrestart" type="button">Barajar de nuevo</button><span class="stats" id="rstats"></span></div>
+  <div class="fc" id="fc" aria-live="polite"></div>
+  <div class="ctrl" id="fcbtn"></div>
+</section>
+
+<footer class="aviso">Apuntes no oficiales de un estudiante de Comunicaciones Ópticas (Universidad de Alcalá, GITT 26/27), basados en sus notas de clase. No están revisados ni avalados por el profesorado y pueden contener errores: contrasta siempre con las clases y el material de la asignatura.</footer>
+</main>
+</div>
+<script type="application/json" id="mapa">{"areas": [{"id": "emisores", "titulo": "Emisores", "color": "orange"}, {"id": "fibra", "titulo": "Fibra", "color": "green"}, {"id": "wdm", "titulo": "WDM y pasivos", "color": "blue"}, {"id": "amp", "titulo": "Amplificación", "color": "violet"}, {"id": "det", "titulo": "Fotodetectores", "color": "red"}, {"id": "redes", "titulo": "Redes y sistemas", "color": "slate"}], "nodos": [{"id": "electrolum", "etiqueta": "Electroluminiscencia", "area": "emisores", "pagina": "led", "sub": 1, "pend": false, "que": "Conversión directa de una señal eléctrica en luz: es la que usan las fuentes de comunicaciones ópticas."}, {"id": "led", "etiqueta": "LED", "area": "emisores", "pagina": "led", "sub": 2, "pend": false, "que": "Diodo semiconductor en polarización directa: los electrones se recombinan con huecos y cada recombinación emite un fotón."}, {"id": "anchura_led", "etiqueta": "Ancho espectral del LED", "area": "emisores", "pagina": "led", "sub": 4, "pend": false, "que": "La emisión del LED no es monocromática: tiene unos 50 nm de anchura espectral."}, {"id": "acoplo", "etiqueta": "Acoplo a la fibra (≈1 %)", "area": "emisores", "pagina": "led", "sub": 4, "pend": false, "que": "El LED emite en todo el hemisferio, así que solo en torno al 1 % de su luz se acopla a la fibra."}, {"id": "emision_est", "etiqueta": "Emisión estimulada", "area": "emisores", "pagina": "laser", "sub": 2, "pend": false, "que": "Emisión en la que todos los fotones salen en fase: es la que produce luz coherente."}, {"id": "umbral", "etiqueta": "Corriente umbral", "area": "emisores", "pagina": "ruido", "sub": 1, "pend": false, "que": "Por debajo de ella el láser actúa como un LED (domina la emisión espontánea); por encima domina la estimulada."}, {"id": "laser", "etiqueta": "Láser de semiconductor", "area": "emisores", "pagina": "laser", "sub": 1, "pend": false, "que": "Emisor de luz muy monocromática, coherente y concentrada en un cono estrecho."}, {"id": "fp", "etiqueta": "Fabry-Pérot", "area": "emisores", "pagina": "fp", "sub": 1, "pend": false, "que": "Cavidad resonante de dos espejos paralelos: sirve de interferómetro y de resonador del láser."}, {"id": "modos", "etiqueta": "Modos longitudinales", "area": "emisores", "pagina": "fp", "sub": 3, "pend": false, "que": "Un Fabry-Pérot deja pasar varias longitudes de onda, separadas por el rango espectral libre."}, {"id": "dfb", "etiqueta": "DFB / DBR", "area": "emisores", "pagina": "monomodo", "sub": 4, "pend": false, "que": "Láseres monomodo: en el DBR los espejos son filtros (redes de Bragg); en el DFB todo el medio activo hace de filtro."}, {"id": "pozo", "etiqueta": "Pozo cuántico", "area": "emisores", "pagina": "monomodo", "sub": 3, "pend": false, "que": "Capas muy finas que atrapan al electrón: la anchura del pozo controla el gap y, con él, la longitud de onda."}, {"id": "sintonia", "etiqueta": "Sintonización fina", "area": "emisores", "pagina": "monomodo", "sub": 5, "pend": false, "que": "Ajuste de las centésimas de nm que faltan cuando el láser se desvía, por ejemplo con un actuador piezoeléctrico."}, {"id": "mod_dir", "etiqueta": "Modulación directa", "area": "emisores", "pagina": "laser", "sub": 3, "pend": false, "que": "Se varía la corriente del propio láser para construir la señal. Es barata, pero introduce retardo y chirp."}, {"id": "mod_ext", "etiqueta": "Modulación externa", "area": "emisores", "pagina": "laser", "sub": 3, "pend": false, "que": "El láser emite en continuo y un elemento externo varía la intensidad. Evita el chirp, pero es más cara."}, {"id": "chirp", "etiqueta": "Chirp", "area": "emisores", "pagina": "ruido", "sub": 3, "pend": false, "que": "Al modular directamente cambia el índice de la cavidad y se ensancha el espectro."}, {"id": "jitter", "etiqueta": "Jitter", "area": "emisores", "pagina": "ruido", "sub": 3, "pend": false, "que": "Retardo al modular directamente: por eso el láser nunca se apaga del todo y trabaja por encima del umbral."}, {"id": "temperatura", "etiqueta": "Temperatura", "area": "emisores", "pagina": "ruido", "sub": 1, "pend": false, "que": "Al subir, aumenta la longitud de onda y el umbral; hay que estabilizarla con refrigeración."}, {"id": "ventanas", "etiqueta": "Ventanas de transmisión", "area": "fibra", "pend": true, "que": "Zonas de baja atenuación de la fibra (Tema 1, aún sin apuntes). Los apuntes citan la ventana de 1550 nm."}, {"id": "multimodo", "etiqueta": "Fibra multimodo gradual", "area": "fibra", "pend": true, "que": "Fibra con varios modos (Tema 1, aún sin apuntes). Los apuntes citan las de índice gradual para los LED."}, {"id": "dispersion", "etiqueta": "Dispersión", "area": "fibra", "pend": true, "que": "Ensanchamiento de los pulsos al propagarse por la fibra (Tema 1, aún sin apuntes)."}, {"id": "dwdm", "etiqueta": "DWDM", "area": "wdm", "pagina": "wdm", "sub": 3, "pend": false, "que": "Multiplexación densa: muchos canales muy próximos (12,5 a 100 GHz) dentro de la ventana de 1550 nm."}, {"id": "cwdm", "etiqueta": "CWDM", "area": "wdm", "pagina": "wdm", "sub": 4, "pend": false, "que": "Multiplexación gruesa: canales más separados (plan de 1271 a 1611 nm); admite láseres sin refrigeración y es más barata."}, {"id": "aislador", "etiqueta": "Aislador", "area": "wdm", "pend": true, "que": "Dispositivo pasivo (Tema 5.1, aún sin apuntes). Los apuntes lo citan para evitar reflexiones que producen ruido modal."}, {"id": "edfa", "etiqueta": "EDFA (1550 nm)", "area": "amp", "pend": true, "que": "Amplificador de fibra dopada con erbio (Tema 4, aún sin apuntes)."}, {"id": "fotodet", "etiqueta": "Fotodetectores PIN/APD", "area": "det", "pend": true, "que": "Detectores de luz (Tema 3, aún sin apuntes). Los apuntes citan sus ruidos y la detección coherente."}, {"id": "gpon", "etiqueta": "GPON", "area": "redes", "pend": true, "que": "Redes ópticas pasivas (Tema 6, aún sin apuntes)."}, {"id": "balance", "etiqueta": "Balance de tiempos de subida", "area": "redes", "pend": true, "que": "Comprobación de que el sistema es lo bastante rápido para la tasa binaria (diseño de sistemas, aún sin apuntes)."}], "aristas": [{"de": "electrolum", "a": "led", "porque": "El LED es el diodo que convierte la corriente en luz.", "tipo": "apuntes", "par": 42}, {"de": "led", "a": "anchura_led", "porque": "La emisión espontánea da un espectro ancho (≈ 50 nm).", "tipo": "apuntes", "par": 55}, {"de": "anchura_led", "a": "dwdm", "porque": "Es lo contrario de lo que pide DWDM: canales a décimas de nm.", "tipo": "apuntes", "par": 55}, {"de": "led", "a": "acoplo", "porque": "Emite en todo el hemisferio, así que solo ≈ 1 % entra en la fibra.", "tipo": "apuntes", "par": 56}, {"de": "acoplo", "a": "multimodo", "porque": "Los LED se usan con fibra multimodo de índice gradual.", "tipo": "apuntes", "par": 53}, {"de": "umbral", "a": "led", "porque": "Por debajo del umbral el láser actúa como un LED.", "tipo": "apuntes", "par": 31}, {"de": "umbral", "a": "laser", "porque": "Por encima del umbral es un láser.", "tipo": "apuntes", "par": 31}, {"de": "emision_est", "a": "laser", "porque": "La emisión estimulada da luz coherente.", "tipo": "apuntes", "par": 62}, {"de": "emision_est", "a": "fotodet", "porque": "Con luz coherente se puede reconstruir la señal (comentario de clase).", "tipo": "apuntes", "par": 62}, {"de": "laser", "a": "fp", "porque": "El Fabry-Pérot rodea al medio activo como resonador.", "tipo": "apuntes", "par": 84}, {"de": "fp", "a": "modos", "porque": "Un Fabry-Pérot deja pasar varios modos longitudinales.", "tipo": "apuntes", "par": 84}, {"de": "modos", "a": "dfb", "porque": "Para DWDM hace falta un solo modo: DFB o DBR.", "tipo": "apuntes", "par": 84}, {"de": "dfb", "a": "dwdm", "porque": "DWDM exige láseres monomodo.", "tipo": "apuntes", "par": 14}, {"de": "pozo", "a": "dwdm", "porque": "La anchura del pozo fija el gap y, con él, la longitud de onda con precisión.", "tipo": "apuntes", "par": 22}, {"de": "temperatura", "a": "umbral", "porque": "El umbral crece exponencialmente con la temperatura.", "tipo": "apuntes", "par": 29}, {"de": "temperatura", "a": "sintonia", "porque": "Una desviación por temperatura se corrige con ajuste fino.", "tipo": "apuntes", "par": 26}, {"de": "temperatura", "a": "dwdm", "porque": "La temperatura desplaza la longitud de onda y DWDM exige precisión de décimas de nm.", "tipo": "apuntes", "par": 29}, {"de": "temperatura", "a": "cwdm", "porque": "En CWDM los láseres pueden ir sin refrigeración.", "tipo": "apuntes", "par": 15}, {"de": "umbral", "a": "jitter", "porque": "Polarizar por encima del umbral evita el retardo de encendido.", "tipo": "apuntes", "par": 39}, {"de": "laser", "a": "mod_dir", "porque": "Se modula variando la corriente del propio láser.", "tipo": "apuntes", "par": 98}, {"de": "laser", "a": "mod_ext", "porque": "Se modula con un elemento externo y el láser en continuo.", "tipo": "apuntes", "par": 99}, {"de": "mod_dir", "a": "chirp", "porque": "La modulación directa ensancha el espectro (chirp).", "tipo": "apuntes", "par": 38}, {"de": "mod_dir", "a": "jitter", "porque": "La modulación directa introduce retardo (jitter).", "tipo": "apuntes", "par": 39}, {"de": "mod_ext", "a": "chirp", "porque": "La modulación externa evita el chirp.", "tipo": "apuntes", "par": 102}, {"de": "laser", "a": "aislador", "porque": "Un aislador evita las reflexiones que causan ruido modal.", "tipo": "apuntes", "par": 35}, {"de": "dwdm", "a": "ventanas", "porque": "Se trabaja en la ventana de 1550 nm.", "tipo": "apuntes", "par": 10}, {"de": "chirp", "a": "dispersion", "porque": "Un espectro más ancho se dispersa más en la fibra.", "tipo": "propuesta"}, {"de": "dispersion", "a": "balance", "porque": "La dispersión limita el tiempo de subida del sistema.", "tipo": "propuesta"}, {"de": "dwdm", "a": "edfa", "porque": "El EDFA amplifica la ventana de 1550 nm.", "tipo": "propuesta"}, {"de": "dwdm", "a": "gpon", "porque": "GPON reparte sentidos y servicios en longitudes de onda distintas.", "tipo": "propuesta"}]}</script>
+<script type="application/json" id="menu">{"temas": [{"n": "1", "titulo": "Fibra óptica", "pend": true}, {"n": "2", "titulo": "Emisores ópticos", "pend": true, "nota": "de momento, LED y láser están en 5.2"}, {"n": "3", "titulo": "Fotodetectores", "pend": true}, {"n": "4", "titulo": "Amplificación óptica", "pend": true}, {"n": "5", "titulo": "Dispositivos pasivos y WDM", "hijos": [{"n": "5.1", "titulo": "Dispositivos pasivos", "pend": true}, {"n": "5.2", "titulo": "WDM", "paginas": ["led", "laser", "fp", "ruido", "monomodo", "wdm"]}]}, {"n": "6", "titulo": "Redes ópticas: FDDI y GPON", "pend": true}]}</script>
+<script type="application/json" id="hilo">{"titulo": "5.2 paso a paso", "paginas": [{"id": "led", "frase": "El LED es demasiado ancho para WDM, así que pasamos al láser."}, {"id": "laser", "frase": "El láser sale de un resonador: el Fabry-Pérot."}, {"id": "fp", "frase": "Un Fabry-Pérot da varios modos y el ruido lo estropea: veamos qué lo causa."}, {"id": "ruido", "frase": "Casi todo el ruido viene de fuera, y para WDM hace falta un solo modo."}, {"id": "monomodo", "frase": "Con un láser monomodo y estable ya se puede multiplexar."}, {"id": "wdm", "frase": ""}]}</script>
+
+<script>
+/* =====================================================================
+   Motor de la web: rutas por hash, menú, subapartados numerados, búsqueda,
+   progreso, repaso con tarjetas. Los widgets están en js/widgets/ (CX.w.<id>)
+   y las funciones de física en 10-modelos.js (CX.mod).
+   Adaptado del motor de la web de apuntes de conmutación.
+   ===================================================================== */
+const CX = { w: {}, mod: {} };
+CX.$ = (s, r = document) => r.querySelector(s);
+CX.$$ = (s, r = document) => [...r.querySelectorAll(s)];
+CX.esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+/* Almacenamiento con prefijo propio: la web de conmutación vive en el mismo origen (github.io)
+   y localStorage es por origen, no por ruta. Todo va en try/catch: puede estar bloqueado. */
+CX.store = {
+  get(k, d) { try { const v = localStorage.getItem('opt27-' + k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem('opt27-' + k, JSON.stringify(v)); } catch (e) {} }
+};
+CX.fmt = (n, d = 2) => Number(n).toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: d });
+CX.norm = s => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+CX.reducido = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+/* Datos JSON incrustados en la página (<script type="application/json" id="…">) */
+CX.datos = id => { const el = document.getElementById(id); try { return el ? JSON.parse(el.textContent) : null; } catch (e) { return null; } };
+
+/* ============================ Arranque ============================ */
+CX.init = function () {
+  const pages = CX.$$('.page'), temas = CX.$$('.page.tema');
+  const seen = new Set(CX.store.get('seen', [])), done = new Set(CX.store.get('done', []));
+
+  CX.$$('[data-w]').forEach(el => {
+    const f = CX.w[el.dataset.w];
+    if (f) { try { f(el); } catch (err) { el.innerHTML = '<p class="ojo"><b>Error en el widget.</b> ' + CX.esc(err.message) + '</p>'; console.error(err); } }
+  });
+
+  /* cabeceras, esquema, subapartados numerados y navegación anterior/siguiente de cada página */
+  temas.forEach((t, i) => {
+    const slug = t.id.slice(2), h2 = CX.$('h2', t);
+    const bar = document.createElement('div'); bar.className = 'pairbar'; h2.before(bar);
+    const etiqueta = [t.dataset.num && '<b>' + CX.esc(t.dataset.num) + '</b>', t.dataset.src && 'basado en ' + CX.esc(t.dataset.src)].filter(Boolean).join(' · ');
+    if (etiqueta) { const p = document.createElement('p'); p.className = 'src'; p.innerHTML = etiqueta; h2.before(p); }
+    const h3s = CX.$$('h3', t).filter(h => !h.closest('.summary'));
+    let n = 0;
+    h3s.forEach((h, j) => {
+      if (!h.id) h.id = slug + '-s' + (j + 1);
+      if (!h.classList.contains('autoev')) h.dataset.n = ++n;
+    });
+    const lead = CX.$('.lead', t);
+    if (h3s.length && lead) {
+      const j = document.createElement('nav'); j.className = 'jump'; j.setAttribute('aria-label', 'Esquema de la página');
+      j.innerHTML = h3s.map(h => `<a href="#/${slug}/${h.id}">${h.dataset.n ? '<b>' + h.dataset.n + '</b>' : ''}${CX.esc(h.textContent)}</a>`).join('');
+      lead.after(j);
+    }
+    const prev = temas[i - 1], next = temas[i + 1];
+    const nav = document.createElement('div'); nav.className = 'pgnav';
+    nav.innerHTML = (prev ? `<a href="#/${prev.id.slice(2)}"><small>Anterior</small>${CX.esc(prev.dataset.title)}</a>` : '<span></span>')
+      + (next ? `<a class="nx" href="#/${next.id.slice(2)}"><small>Siguiente</small>${CX.esc(next.dataset.title)}</a>` : `<a class="nx" href="#/repaso"><small>Siguiente</small>Modo repaso</a>`);
+    const d = document.createElement('div'); d.className = 'domino';
+    d.innerHTML = '<button class="b" type="button" aria-pressed="false">Lo domino</button><span class="stats">Márcalo cuando puedas contestar el repaso de esta página sin mirar.</span>';
+    t.append(d, nav);
+    const btn = CX.$('button', d);
+    btn.setAttribute('aria-pressed', done.has(t.id));
+    btn.addEventListener('click', () => { done.has(t.id) ? done.delete(t.id) : done.add(t.id); btn.setAttribute('aria-pressed', done.has(t.id)); CX.store.set('done', [...done]); paint(); });
+  });
+
+  /* bloques que dependen del mapa de conexiones (se definen en 21-mapa.js) */
+  if (CX.conecta) temas.forEach(t => CX.conecta(t));
+  if (CX.hilo) CX.hilo();
+  if (CX.leyenda) CX.leyenda();
+
+  /* menú lateral generado desde el JSON #menu: temas pendientes en gris, 5.1 pendiente y 5.2 con sus páginas */
+  const navEl = CX.$('#nav'), menu = CX.datos('menu');
+  const porId = {}; temas.forEach(t => { porId[t.id.slice(2)] = t; });
+  const pendiente = (it, extra) => `<span class="ni pend${extra || ''}" style="--c:var(--slate)"><span class="jk"></span><span>${CX.esc(it.n + ' · ' + it.titulo)}<small>pendiente${it.nota ? ' · ' + CX.esc(it.nota) : ''}</small></span></span>`;
+  const enlace = (id, extra) => { const t = porId[id]; return t ? `<a class="ni${extra || ''}" data-id="${id}" href="#/${id}" style="--c:var(--${t.dataset.color || 'slate'})"><span class="jk"></span><span>${CX.esc(t.dataset.title)}<small>${CX.esc((t.dataset.num ? t.dataset.num + ' · ' : '') + (t.dataset.short || ''))}</small></span></a>` : ''; };
+  let html = `<a class="ni" data-id="home" href="#/" style="--c:var(--slate)"><span class="jk"></span><span>Mapa de conexiones<small>cómo se relaciona todo</small></span></a>`;
+  ((menu && menu.temas) || []).forEach(tm => {
+    if (tm.hijos) {
+      html += `<div class="ng">Tema ${CX.esc(tm.n)} · ${CX.esc(tm.titulo)}</div>`;
+      tm.hijos.forEach(h => {
+        if (h.pend) html += pendiente(h, ' in');
+        else { html += `<div class="ng sub">${CX.esc(h.n)} · ${CX.esc(h.titulo)}</div>`; (h.paginas || []).forEach(id => { html += enlace(id, ' in'); }); }
+      });
+    } else html += pendiente(tm);
+  });
+  html += `<a class="ni" data-id="repaso" href="#/repaso" style="--c:var(--blue)"><span class="jk"></span><span>Modo repaso<small>tarjetas de todas las páginas</small></span></a>`;
+  navEl.innerHTML = html;
+
+  function paint() {
+    CX.$$('.ni[data-id]', navEl).forEach(a => { const pid = 'p-' + a.dataset.id; a.classList.toggle('seen', seen.has(pid)); a.classList.toggle('done', done.has(pid)); });
+    CX.$('#prog').textContent = `Dominadas: ${temas.filter(t => done.has(t.id)).length} de ${temas.length} páginas`;
+  }
+
+  /* tema claro/oscuro */
+  const tb = CX.$('#theme'), root = document.documentElement;
+  const esOscuro = () => root.dataset.theme === 'dark' || (!root.dataset.theme && matchMedia('(prefers-color-scheme: dark)').matches);
+  function setTheme(t) { if (t) root.dataset.theme = t; tb.textContent = esOscuro() ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro'; }
+  const st = CX.store.get('theme', null); if (st) root.dataset.theme = st; setTheme();
+  tb.addEventListener('click', () => { const t = esOscuro() ? 'light' : 'dark'; setTheme(t); CX.store.set('theme', t); });
+
+  /* en pantallas estrechas el menú va plegado tras el botón «Menú» */
+  const rail = CX.$('.rail'), menuBtn = CX.$('#menu-btn');
+  const pliega = abierto => { rail.classList.toggle('abierto', abierto); menuBtn.setAttribute('aria-expanded', abierto); };
+  menuBtn.addEventListener('click', () => pliega(!rail.classList.contains('abierto')));
+
+  /* router por hash: #/pagina  o  #/pagina/ancla  (opcional ?tema=oscuro|claro, útil para capturas) */
+  function route(h) {
+    pliega(false);
+    const [ruta, consulta] = (typeof h === 'string' ? h : location.hash).replace(/^#\/?/, '').split('?');
+    const tema = new URLSearchParams(consulta || '').get('tema');
+    if (tema === 'oscuro' || tema === 'claro') setTheme(tema === 'oscuro' ? 'dark' : 'light');
+    const parts = ruta.split('/');
+    const id = parts[0] || 'home', anchor = parts[1];
+    let page = document.getElementById('p-' + id) || document.getElementById('p-home');   // sin selectores: la ruta puede traer cualquier carácter
+    pages.forEach(p => p.classList.toggle('show', p === page));
+    CX.$$('.ni[data-id]', navEl).forEach(a => a.classList.toggle('on', a.dataset.id === page.id.slice(2)));
+    if (page.classList.contains('tema')) { seen.add(page.id); CX.store.set('seen', [...seen]); }
+    document.title = (page.dataset.title ? page.dataset.title + ' · ' : '') + 'Comunicaciones Ópticas';
+    paint();
+    if (page.id === 'p-home' && CX.mapa && CX.mapa.select) CX.mapa.select(anchor && /^(n|pag)-/.test(anchor) ? anchor : null);
+    const target = anchor && document.getElementById(anchor);
+    if (target) requestAnimationFrame(() => target.scrollIntoView({ block: 'start' })); else window.scrollTo(0, 0);
+    if (page.id === 'p-repaso') CX.repaso.open();
+  }
+  addEventListener('hashchange', () => route());
+  CX.route = route;
+
+  CX.$('#print').addEventListener('click', () => print());
+  /* al imprimir, abrir las respuestas del repaso y restaurar después */
+  let reopen = [];
+  addEventListener('beforeprint', () => { reopen = CX.$$('details:not([open])'); reopen.forEach(d => d.open = true); });
+  addEventListener('afterprint', () => { reopen.forEach(d => d.open = false); reopen = []; });
+
+  /* búsqueda: un bloque por cada h3 de cada página */
+  const index = [];
+  temas.forEach(t => {
+    CX.$$('h3', t).forEach(h => {
+      let txt = h.textContent + ' ', e = h.nextElementSibling;
+      while (e && e.tagName !== 'H3' && !e.classList.contains('domino') && !e.classList.contains('conecta')) { if (e.tagName !== 'SCRIPT') txt += e.textContent + ' '; e = e.nextElementSibling; }
+      index.push({ page: t.id.slice(2), pt: t.dataset.title, id: h.id, title: h.textContent, txt: txt.replace(/\s+/g, ' '), n: CX.norm(txt) });
+    });
+  });
+  const q = CX.$('#q'), res = CX.$('#sres');
+  q.addEventListener('input', () => {
+    const v = CX.norm(q.value.trim()); if (v.length < 2) { res.hidden = true; return; }
+    const hits = index.filter(b => b.n.includes(v)).slice(0, 10);
+    res.hidden = false;
+    res.innerHTML = hits.length ? hits.map(b => { const i = b.n.indexOf(v), s = b.txt.slice(Math.max(0, i - 30), i + 60); return `<a href="#/${b.page}/${b.id}"><b>${CX.esc(b.title)}</b><span>${CX.esc(b.pt)}: …${CX.esc(s)}…</span></a>`; }).join('') : '<a><span>Nada con «' + CX.esc(q.value) + '». Prueba con otra palabra o sin tildes.</span></a>';
+  });
+  res.addEventListener('click', () => { res.hidden = true; q.value = ''; });
+  q.addEventListener('keydown', e => { if (e.key === 'Escape') { res.hidden = true; q.blur(); } });
+  /* la tecla / enfoca el buscador (salvo si ya se está escribiendo en un campo) */
+  addEventListener('keydown', e => {
+    if (e.key === '/' && !e.ctrlKey && !e.metaKey && !e.altKey && !/^(INPUT|TEXTAREA|SELECT)$/.test((document.activeElement || {}).tagName || '')) { e.preventDefault(); q.focus(); }
+  });
+
+  /* repaso con tarjetas: cada details.q de cada página */
+  const cards = [];
+  temas.forEach(t => CX.$$('details.q', t).forEach(d => { const s = CX.$('summary', d); cards.push({ t: t.dataset.title, id: t.id, q: s.innerHTML, a: [...d.childNodes].filter(n => n !== s).map(n => n.outerHTML || n.textContent).join('') }); }));
+  const sel = CX.$('#rtema'); sel.innerHTML = '<option value="">Todas las páginas</option>' + temas.map(t => `<option value="${t.id}">${CX.esc(t.dataset.title)}</option>`).join('');
+  const know = CX.store.get('know', {}); let deck = [], pos = 0, shown = false;
+  CX.repaso = { open() { build(); } };
+  function build() {
+    deck = cards.filter(c => !sel.value || c.id === sel.value);
+    deck.sort((a, b) => ((know[a.q] === 1 ? 1 : 0) - (know[b.q] === 1 ? 1 : 0)) || (Math.random() - .5)); // primero lo no sabido
+    pos = 0; shown = false; draw();
+  }
+  function draw() {
+    const fc = CX.$('#fc'), bt = CX.$('#fcbtn');
+    const sa = deck.filter(c => know[c.q] === 1).length;
+    CX.$('#rstats').textContent = deck.length ? `Sabidas ${sa} de ${deck.length}` : '';
+    if (!deck.length) { fc.innerHTML = '<p>Aún no hay preguntas de repaso.</p>'; bt.innerHTML = ''; return; }
+    if (pos >= deck.length) { fc.innerHTML = `<div class="qq">Has dado la vuelta al mazo.</div><p>Sabías ${sa} de ${deck.length}. Pulsa «Barajar de nuevo» para repasar primero las que marcaste como pendientes.</p>`; bt.innerHTML = ''; return; }
+    const c = deck[pos];
+    fc.innerHTML = `<div class="from">${CX.esc(c.t)}. Pregunta ${pos + 1} de ${deck.length}</div><div class="qq">${c.q}</div>${shown ? `<div class="aa">${c.a}</div>` : ''}`;
+    bt.innerHTML = shown ? '<button class="b pri" type="button" data-k="1">La sabía</button><button class="b" type="button" data-k="0">Repasar</button>' : '<button class="b pri" type="button" data-s="1">Ver respuesta</button><button class="b" type="button" data-sk="1">Saltar</button>';
+  }
+  CX.$('#fcbtn').addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b) return;
+    if (b.dataset.s) { shown = true; }
+    else if (b.dataset.sk) { pos++; }
+    else { know[deck[pos].q] = +b.dataset.k; CX.store.set('know', know); pos++; shown = false; }
+    draw();
+  });
+  sel.addEventListener('change', build); CX.$('#rrestart').addEventListener('click', build);
+
+  paint(); route();
+};
+
+/* Ayudas para dibujar los widgets: cada función devuelve texto SVG (o HTML de controles).
+   Los colores van siempre con variables CSS para que sirvan en tema claro y oscuro. */
+CX.s = {
+  /* texto: o = {ancla, tam, peso, col, rot, cls} */
+  t(x, y, txt, o = {}) {
+    const { ancla = 'start', tam = 13, peso = 400, col = 'var(--ink)', rot = 0, cls = '' } = o;
+    return `<text x="${x}" y="${y}" text-anchor="${ancla}" font-size="${tam}" font-weight="${peso}" fill="${col}"${rot ? ` transform="rotate(${rot} ${x} ${y})"` : ''}${cls ? ` class="${cls}"` : ''}>${CX.esc(txt)}</text>`;
+  },
+  l(x1, y1, x2, y2, o = {}) {
+    const { col = 'var(--ink)', w = 1.5, dash = '', op = 1 } = o;
+    return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${col}" stroke-width="${w}"${dash ? ` stroke-dasharray="${dash}"` : ''}${op < 1 ? ` opacity="${op}"` : ''}/>`;
+  },
+  r(x, y, w, h, o = {}) {
+    const { fill = 'none', stroke = 'none', sw = 1.5, rx = 0, op = 1, cls = '' } = o;
+    return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${rx}" fill="${fill}" stroke="${stroke}" stroke-width="${sw}"${op < 1 ? ` opacity="${op}"` : ''}${cls ? ` class="${cls}"` : ''}/>`;
+  },
+  c(cx, cy, r, o = {}) {
+    const { fill = 'none', stroke = 'none', sw = 1.5, op = 1 } = o;
+    return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${fill}" stroke="${stroke}" stroke-width="${sw}"${op < 1 ? ` opacity="${op}"` : ''}/>`;
+  },
+  p(d, o = {}) {
+    const { fill = 'none', stroke = 'var(--ink)', w = 1.5, dash = '', op = 1, cls = '' } = o;
+    return `<path d="${d}" fill="${fill}" stroke="${stroke}" stroke-width="${w}" stroke-linejoin="round" stroke-linecap="round"${dash ? ` stroke-dasharray="${dash}"` : ''}${op < 1 ? ` opacity="${op}"` : ''}${cls ? ` class="${cls}"` : ''}/>`;
+  },
+  /* línea con punta de flecha en el extremo final (tam = tamaño de la punta) */
+  flecha(x1, y1, x2, y2, o = {}) {
+    const { col = 'var(--ink)', w = 1.8, dash = '', tam = 8, op = 1 } = o;
+    const a = Math.atan2(y2 - y1, x2 - x1), c = Math.cos(a), s = Math.sin(a);
+    const bx = x2 - c * tam, by = y2 - s * tam;
+    const p1 = `${(bx - s * tam * 0.45).toFixed(1)},${(by + c * tam * 0.45).toFixed(1)}`, p2 = `${(bx + s * tam * 0.45).toFixed(1)},${(by - c * tam * 0.45).toFixed(1)}`;
+    return `<g${op < 1 ? ` opacity="${op}"` : ''}>${CX.s.l(x1, y1, bx + c * 1, by + s * 1, { col, w, dash })}<polygon points="${x2.toFixed(1)},${y2.toFixed(1)} ${p1} ${p2}" fill="${col}"/></g>`;
+  },
+  /* trazado de una onda senoidal horizontal: ciclos completos en `ancho`, amplitud amp, fase en radianes */
+  onda(x0, y0, ancho, amp, ciclos, fase = 0, n = 90) {
+    let d = '';
+    for (let i = 0; i <= n; i++) {
+      const x = x0 + ancho * i / n, y = y0 - amp * Math.sin(2 * Math.PI * ciclos * i / n + fase);
+      d += (i ? 'L' : 'M') + x.toFixed(1) + ',' + y.toFixed(1);
+    }
+    return d;
+  },
+  /* flecha ondulada (un fotón) de (x1,y1) a (x2,y2) */
+  foton(x1, y1, x2, y2, col, o = {}) {
+    const { dash = '', amp = 4, long = 14, w = 2 } = o;
+    const L = Math.hypot(x2 - x1, y2 - y1) - 7, a = Math.atan2(y2 - y1, x2 - x1);
+    const n = Math.max(12, Math.round(L / 2)), ciclos = L / long;
+    let d = '';
+    for (let i = 0; i <= n; i++) {
+      const u = L * i / n, v = amp * Math.sin(2 * Math.PI * ciclos * i / n);
+      d += (i ? 'L' : 'M') + (x1 + u * Math.cos(a) - v * Math.sin(a)).toFixed(1) + ',' + (y1 + u * Math.sin(a) + v * Math.cos(a)).toFixed(1);
+    }
+    return CX.s.p(d, { stroke: col, w, dash }) + CX.s.flecha(x1 + (L - 2) * Math.cos(a), y1 + (L - 2) * Math.sin(a), x2, y2, { col, w: 0.1, tam: 9 });
+  },
+  /* color de una longitud de onda en nm (el infrarrojo y el ultravioleta, en gris) */
+  colorLuz(nm) {
+    const c = CX.mod.colorDeLambda(nm);
+    return { violeta: 'var(--violet)', azul: 'var(--blue)', verde: 'var(--green)', amarillo: 'var(--yellow)', naranja: 'var(--orange)', rojo: 'var(--red)' }[c] || 'var(--muted)';
+  },
+  /* barra de espectro de nmMin a nmMax en (x,y,w,h); id debe ser único en la página. Devuelve {svg, x(nm)} */
+  barraEspectro(id, x, y, w, h, nmMin, nmMax) {
+    const pos = nm => Math.max(0, Math.min(1, (nm - nmMin) / (nmMax - nmMin)));
+    const paradas = [[380, '#7b55c6'], [450, '#2f6fde'], [520, '#2a9d6a'], [580, '#d9a400'], [620, '#e0721f'], [700, '#d44a3f'], [750, '#b04a40'], [780, '#98a2ad']];
+    const stops = paradas.map(([nm, col]) => `<stop offset="${(pos(nm) * 100).toFixed(1)}%" stop-color="${col}"/>`).join('');
+    const svg = `<defs><linearGradient id="${id}">${stops}<stop offset="100%" stop-color="#98a2ad"/></linearGradient></defs>`
+      + CX.s.r(x, y, w, h, { fill: `url(#${id})`, rx: 3 });
+    return { svg, x: nm => x + w * (nm - nmMin) / (nmMax - nmMin) };
+  }
+};
+
+/* Ayudas para los controles de los widgets */
+CX.ui = {
+  /* grupo de botones excluyentes: attr = nombre del atributo data-, opciones = [[valor, texto], …] */
+  seg(attr, opciones, activo, etiqueta) {
+    return `<span class="seg" role="group" aria-label="${CX.esc(etiqueta)}">${opciones.map(([v, t]) => `<button class="b" type="button" data-${attr}="${v}" aria-pressed="${v === activo}">${CX.esc(t)}</button>`).join('')}</span>`;
+  },
+  /* deslizador con su etiqueta */
+  rango(id, etiqueta, min, max, paso, valor) {
+    return `<label for="${id}">${CX.esc(etiqueta)}</label><input type="range" id="${id}" min="${min}" max="${max}" step="${paso}" value="${valor}">`;
+  },
+  /* marca como pulsado el botón con data-<attr>=<valor> y despulsa los demás */
+  fijaSeg(root, attr, valor) {
+    CX.$$(`[data-${attr}]`, root).forEach(b => b.setAttribute('aria-pressed', b.dataset[attr] === String(valor)));
+  },
+  /* número limitado a un rango */
+  lim: (v, a, b) => Math.min(b, Math.max(a, v))
+};
+
+/* Funciones puras de física que usan los widgets. No tocan el DOM.
+   Se cargan igual en el navegador (CX.mod) y en Node (tests): ver la última línea. */
+const MOD = {
+  /* Longitud de onda (nm) que emite un salto de energía (gap) de Eg eV: λ = hc/Eg */
+  gapANm: eV => 1239.84 / eV,
+
+  /* Nombre del color de una longitud de onda en nm */
+  colorDeLambda(nm) {
+    if (nm < 380) return 'ultravioleta';
+    if (nm < 450) return 'violeta';
+    if (nm < 495) return 'azul';
+    if (nm < 570) return 'verde';
+    if (nm < 590) return 'amarillo';
+    if (nm < 620) return 'naranja';
+    if (nm <= 750) return 'rojo';
+    return 'infrarrojo';
+  },
+
+  /* Fracción de la luz de un emisor lambertiano que entra en una fibra de apertura numérica AN: AN² */
+  acoploLambert: an => Math.min(1, Math.max(0, an * an)),
+
+  /* Módulo de la suma de N fasores unitarios con las fases dadas, dividido entre N (1 = todos en fase) */
+  sumaFasores(fases) {
+    if (!fases.length) return 0;
+    let re = 0, im = 0;
+    for (const f of fases) { re += Math.cos(f); im += Math.sin(f); }
+    return Math.hypot(re, im) / fases.length;
+  },
+
+  /* Transmisión de un Fabry-Pérot a lo largo de un rango espectral libre (n muestras, pico en el centro).
+     Airy: T = 1/(1 + F·sen²φ) con F = 4R/(1−R)². El desalineamiento ensancha los picos con una gaussiana
+     de anchura (fracción del rango) 1/(2 + 98·alineamiento), alineamiento entre 0 (malo) y 1 (perfecto). */
+  curvaFP(R, alineamiento, n) {
+    const F = 4 * R / ((1 - R) * (1 - R));
+    const airy = new Float64Array(n);
+    for (let i = 0; i < n; i++) {
+      const fi = -Math.PI / 2 + Math.PI * i / n;
+      airy[i] = 1 / (1 + F * Math.sin(fi) ** 2);
+    }
+    const anchoRel = 1 / (2 + 98 * Math.min(1, Math.max(0, alineamiento)));
+    const sigma = Math.max(0.5, anchoRel * n / 2.3548);       // en muestras
+    const radio = Math.min(Math.floor(4 * sigma), (n >> 1) - 1);
+    const nucleo = [];
+    let suma = 0;
+    for (let k = -radio; k <= radio; k++) { const v = Math.exp(-k * k / (2 * sigma * sigma)); nucleo.push(v); suma += v; }
+    const salida = new Array(n);
+    for (let i = 0; i < n; i++) {
+      let s = 0;
+      for (let k = -radio; k <= radio; k++) s += airy[(i + k + n) % n] * nucleo[k + radio];
+      salida[i] = s / suma;
+    }
+    return salida;
+  },
+
+  /* Anchura a media altura del pico principal, como fracción del rango espectral libre */
+  anchoPico(curva) {
+    const n = curva.length;
+    let imax = 0;
+    for (let i = 1; i < n; i++) if (curva[i] > curva[imax]) imax = i;
+    const mitad = curva[imax] / 2;
+    let cuenta = 1;
+    for (let k = 1; k < n && curva[(imax + k) % n] >= mitad; k++) cuenta++;
+    for (let k = 1; k < n && curva[(imax - k + n) % n] >= mitad; k++) cuenta++;
+    return Math.min(1, cuenta / n);
+  },
+
+  /* Fineza = rango espectral libre / anchura a media altura (la definición de los apuntes) */
+  finezaMedida(curva) { return 1 / MOD.anchoPico(curva); },
+
+  /* Corriente umbral (mA) a Tc °C: crece exponencialmente con la temperatura; I0 es el valor a 20 °C */
+  umbral: (Tc, I0 = 10, T0 = 60) => I0 * Math.exp((Tc - 20) / T0),
+
+  /* Potencia óptica (unidades arbitrarias): debajo del umbral emisión espontánea (como un LED, eps·I),
+     por encima emisión estimulada (pendiente eta) */
+  potenciaPI(I, Ith, eta = 0.3, eps = 0.01) {
+    return I < Ith ? eps * I : eps * Ith + eta * (I - Ith);
+  },
+
+  /* Retardo de encendido (ns) al pasar de la polarización Ib a la corriente I: tau·ln((I−Ib)/(I−Ith)).
+     Con Ib por encima del umbral no hay retardo; si I no supera el umbral, nunca enciende. */
+  retrasoEncendido(I, Ib, Ith, tau = 2) {
+    if (Ib >= Ith) return 0;
+    if (I <= Ith) return Infinity;
+    return tau * Math.log((I - Ib) / (I - Ith));
+  },
+
+  /* Deriva de longitud de onda (nm) para un cambio de temperatura dT (valor típico de un DFB: 0,1 nm/°C) */
+  derivaLambda: (dT, coef = 0.1) => coef * dT,
+
+  /* Estado de un canal que se ha corrido dl nm en una rejilla con separación sep nm */
+  estadoCanal(dl, sep = 0.8) {
+    const d = Math.abs(dl);
+    if (d <= sep / 4 + 1e-9) return 'ok';
+    if (d <= sep / 2 + 1e-9) return 'peligro';
+    return 'choque';
+  },
+
+  /* Separación en nm equivalente a una separación en GHz a la longitud de onda dada: λ²·Δf/c */
+  lambdaDeGHz: (ghz, lambdaNm) => lambdaNm * lambdaNm * ghz / 2.99792458e8,
+
+  /* Plan CWDM: 18 canales de 1271 a 1611 nm cada 20 nm */
+  canalesCWDM: () => Array.from({ length: 18 }, (_, i) => 1271 + 20 * i),
+
+  /* Longitud de onda (nm) emitida por un pozo cuántico de ancho dado (nm) sobre un material de gap egEv.
+     Pozo infinito: la energía de confinamiento (electrón + hueco) crece como 1/ancho² (6,35 eV·nm² para GaAs). */
+  lambdaPozo: (anchoNm, egEv = 1.42) => MOD.gapANm(egEv + 6.35 / (anchoNm * anchoNm)),
+
+  /* Posición (nm, relativa) de los modos longitudinales según el tipo de láser */
+  picosModos(tipo) {
+    if (tipo === 'FP') return [-3.3, -2.2, -1.1, 0, 1.1, 2.2, 3.3];
+    if (tipo === 'DBR' || tipo === 'DFB') return [0];
+    throw new Error('tipo de láser desconocido: ' + tipo);
+  }
+};
+
+if (typeof module !== 'undefined' && module.exports) module.exports = MOD; else CX.mod = MOD;
+
+/* Lógica pura del mapa de conexiones: validar los datos y calcular dónde va cada nodo y cada arista.
+   No toca el DOM. Se carga igual en el navegador (CX.mapaDatos) y en Node (tests). */
+const MAPA_DATOS = (() => {
+  const ANCHO = 920, MX = 10, W = 140, H = 46, GX = 12, GY = 34;
+  const CABECERA = 26, POR_FILA = 6, GAP_BANDA = 10, MAX_LINEA = 18;
+  const redondea = v => Math.round(v * 10) / 10;
+
+  /* Reparte una etiqueta en líneas de como mucho `max` caracteres (por palabras) */
+  function partir(texto, max = MAX_LINEA) {
+    const lineas = [];
+    let actual = '';
+    for (const p of String(texto).split(' ')) {
+      if (!actual) actual = p;
+      else if ((actual + ' ' + p).length <= max) actual += ' ' + p;
+      else { lineas.push(actual); actual = p; }
+    }
+    if (actual) lineas.push(actual);
+    return lineas;
+  }
+
+  /* Devuelve la lista de errores de los datos (vacía si todo cumple los invariantes) */
+  function validar(datos, ctx) {
+    const err = [];
+    const areas = new Set(datos.areas.map(a => a.id));
+    const nodos = new Map();
+    for (const n of datos.nodos) {
+      if (nodos.has(n.id)) err.push(`nodo ${n.id}: id repetido`);
+      nodos.set(n.id, n);
+      if (!areas.has(n.area)) err.push(`nodo ${n.id}: el área ${n.area} no existe`);
+      if (!n.que) err.push(`nodo ${n.id}: falta la frase «que»`);
+      if (partir(n.etiqueta).length > 2) err.push(`nodo ${n.id}: la etiqueta necesita más de 2 líneas`);
+      if (n.pend) {
+        if (n.pagina) err.push(`nodo ${n.id}: un nodo pendiente no puede tener página`);
+      } else {
+        const subs = ctx.paginas[n.pagina];
+        if (!subs) err.push(`nodo ${n.id}: la página ${n.pagina} no existe`);
+        else if (!Number.isInteger(n.sub) || n.sub < 1 || n.sub > subs) err.push(`nodo ${n.id}: la página ${n.pagina} no tiene el subapartado ${n.sub}`);
+      }
+    }
+    const vistas = new Set();
+    const conectados = new Set();
+    for (const a of datos.aristas) {
+      const nombre = `arista ${a.de}→${a.a}`;
+      const A = nodos.get(a.de), B = nodos.get(a.a);
+      if (!A) err.push(`${nombre}: el nodo ${a.de} no existe`);
+      if (!B) err.push(`${nombre}: el nodo ${a.a} no existe`);
+      if (!A || !B) continue;
+      conectados.add(a.de); conectados.add(a.a);
+      if (a.de === a.a) err.push(`${nombre}: une un nodo consigo mismo`);
+      const clave = a.de + '>' + a.a;
+      if (vistas.has(clave)) err.push(`${nombre}: arista duplicada`);
+      vistas.add(clave);
+      if (!a.porque || !String(a.porque).trim()) err.push(`${nombre}: falta el porqué`);
+      if (a.tipo === 'apuntes') {
+        if (!Number.isInteger(a.par) || a.par < 0 || a.par >= ctx.parrafos) err.push(`${nombre}: «par» debe ser un índice de párrafo entre 0 y ${ctx.parrafos - 1}`);
+        if (A.pend && B.pend) err.push(`${nombre}: una arista de los apuntes necesita un extremo documentado`);
+      } else if (a.tipo === 'propuesta') {
+        if (a.par !== undefined) err.push(`${nombre}: una propuesta no lleva «par»`);
+        if (!A.pend && !B.pend) err.push(`${nombre}: una propuesta necesita un extremo pendiente`);
+      } else err.push(`${nombre}: tipo desconocido ${a.tipo}`);
+    }
+    for (const n of datos.nodos) if (!conectados.has(n.id)) err.push(`nodo ${n.id}: está suelto (sin ninguna arista)`);
+    return err;
+  }
+
+  /* Conexiones de un nodo: [{otro: nodo, arista, sentido: 'sale'|'entra'}] */
+  function vecinos(datos, id) {
+    const por = new Map(datos.nodos.map(n => [n.id, n]));
+    const salida = [];
+    for (const a of datos.aristas) {
+      if (a.de === id) salida.push({ otro: por.get(a.a), arista: a, sentido: 'sale' });
+      else if (a.a === id) salida.push({ otro: por.get(a.de), arista: a, sentido: 'entra' });
+    }
+    return salida;
+  }
+
+  /* Trazado de las aristas: salen/entran por el lado que mira al otro nodo y los puertos se reparten */
+  function rutas(nodos, aristas) {
+    const pos = new Map(nodos.map(n => [n.id, n]));
+    const info = aristas.map((e, idx) => {
+      const A = pos.get(e.de), B = pos.get(e.a);
+      let la, lb;
+      if (A.area === B.area && A.fila === B.fila) {
+        if (Math.abs(A.col - B.col) === 1) { la = A.col < B.col ? 'der' : 'izq'; lb = A.col < B.col ? 'izq' : 'der'; }
+        else { la = 'abajo'; lb = 'abajo'; }
+      } else if (A.y + A.h / 2 < B.y + B.h / 2) { la = 'abajo'; lb = 'arriba'; }
+      else { la = 'arriba'; lb = 'abajo'; }
+      return { e, idx, A, B, la, lb, dist: Math.abs(A.col - B.col) };
+    });
+    const grupos = new Map();
+    for (const it of info) {
+      for (const [nodo, lado, otro, ext] of [[it.A, it.la, it.B, 'p1'], [it.B, it.lb, it.A, 'p2']]) {
+        const k = nodo.id + '|' + lado;
+        if (!grupos.has(k)) grupos.set(k, []);
+        grupos.get(k).push({ it, ext, otro });
+      }
+    }
+    for (const [k, lista] of grupos) {
+      const [id, lado] = k.split('|');
+      const n = pos.get(id);
+      const vertical = lado === 'der' || lado === 'izq';
+      lista.sort((p, q) => (vertical ? p.otro.y - q.otro.y : p.otro.x - q.otro.x) || (p.it.e.de + p.it.e.a).localeCompare(q.it.e.de + q.it.e.a));
+      lista.forEach((p, j) => {
+        const f = (j + 1) / (lista.length + 1);
+        p.it[p.ext] = lado === 'abajo' ? [n.x + n.w * f, n.y + n.h]
+          : lado === 'arriba' ? [n.x + n.w * f, n.y]
+          : lado === 'der' ? [n.x + n.w, n.y + n.h * f] : [n.x, n.y + n.h * f];
+      });
+    }
+    return info.map(it => {
+      const [ax, ay] = it.p1, [bx, by] = it.p2;
+      let d;
+      if (it.la === 'der' || it.la === 'izq') d = `M${redondea(ax)},${redondea(ay)} L${redondea(bx)},${redondea(by)}`;
+      else if (it.la === it.lb) {                       // arco por debajo de la fila entre nodos no contiguos
+        const h = Math.min(30, 12 + 6 * it.dist);
+        d = `M${redondea(ax)},${redondea(ay)} C${redondea(ax)},${redondea(ay + h)} ${redondea(bx)},${redondea(by + h)} ${redondea(bx)},${redondea(by)}`;
+      } else {
+        const m = (ay + by) / 2;
+        d = `M${redondea(ax)},${redondea(ay)} C${redondea(ax)},${redondea(m)} ${redondea(bx)},${redondea(m)} ${redondea(bx)},${redondea(by)}`;
+      }
+      return { idx: it.idx, de: it.e.de, a: it.e.a, tipo: it.e.tipo, d };
+    });
+  }
+
+  /* Posiciones de bandas (una por área, de arriba abajo), nodos (filas de 6 dentro de su banda) y aristas */
+  function layout(datos, opciones = {}) {
+    const pendientes = opciones.pendientes !== false;
+    const visibles = datos.nodos.filter(n => pendientes || !n.pend);
+    const bandas = [], nodos = [];
+    let y = 0;
+    for (const a of datos.areas) {
+      const propios = visibles.filter(n => n.area === a.id);
+      if (!propios.length) { bandas.push({ area: a.id, titulo: a.titulo, color: a.color, y, alto: 0, vacia: true, filas: 0 }); continue; }
+      const filas = Math.ceil(propios.length / POR_FILA);
+      const alto = CABECERA + filas * (H + GY) + 4;
+      propios.forEach((n, k) => {
+        const fila = Math.floor(k / POR_FILA), col = k % POR_FILA;
+        nodos.push({ id: n.id, etiqueta: n.etiqueta, area: n.area, pend: !!n.pend, color: a.color, lineas: partir(n.etiqueta),
+          x: MX + col * (W + GX), y: y + CABECERA + fila * (H + GY), w: W, h: H, fila, col });
+      });
+      bandas.push({ area: a.id, titulo: a.titulo, color: a.color, y, alto, vacia: false, filas });
+      y += alto + GAP_BANDA;
+    }
+    const ids = new Set(nodos.map(n => n.id));
+    const aristas = rutas(nodos, datos.aristas.filter(e => ids.has(e.de) && ids.has(e.a)).map((e, i) => ({ ...e, _i: i })));
+    return { ancho: ANCHO, alto: Math.max(0, y - GAP_BANDA), bandas, nodos, aristas };
+  }
+
+  return { partir, validar, vecinos, layout, ANCHO };
+})();
+
+if (typeof module !== 'undefined' && module.exports) module.exports = MAPA_DATOS; else CX.mapaDatos = MAPA_DATOS;
+
+/* Mapa interactivo de conexiones: dibujo e interacción.
+   Los datos están en el JSON #mapa y la lógica pura (validar, layout) en 20-mapa-datos.js.
+   Un tema nuevo se añade solo con sus nodos y aristas en los datos: aquí no hay que tocar nada. */
+CX.mapa = {
+  datos: null,
+  root: null,
+  estado: { pend: true, area: '', sel: new Set(), arista: null },
+
+  /* Dibuja el mapa (con datos nuevos si se pasan) */
+  render(datos) {
+    const m = CX.mapa, root = m.root;
+    if (datos) m.datos = datos;
+    const L = CX.mapaDatos.layout(m.datos, { pendientes: m.estado.pend });
+    const svg = CX.$('svg', root);
+    svg.setAttribute('viewBox', `0 0 ${L.ancho} ${Math.max(L.alto, 40)}`);
+    const color = c => `var(--${c})`;
+    let h = `<defs>
+      <marker id="mapa-fl" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z"/></marker>
+      <marker id="mapa-fl-act" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10z"/></marker></defs>`;
+    for (const b of L.bandas) {
+      if (b.vacia) continue;
+      h += `<g class="banda" data-area="${b.area}" style="--c:${color(b.color)}"><rect x="0" y="${b.y}" width="${L.ancho}" height="${b.alto}" rx="10"/></g>`;
+    }
+    h += '<g class="aristas">';
+    for (const e of L.aristas) {
+      const orig = m.datos.aristas.find(a => a.de === e.de && a.a === e.a);
+      h += `<g class="ar-g" data-de="${e.de}" data-a="${e.a}"><title>${CX.esc(orig.porque)}</title><path class="ar ${e.tipo}" d="${e.d}"/><path class="hit" d="${e.d}"/></g>`;
+    }
+    h += '</g><g class="nodos">';
+    for (const n of L.nodos) {
+      const cx = n.x + n.w / 2, cy = n.y + n.h / 2;
+      const ys = n.lineas.length === 1 ? [cy + 4.5] : [cy - 5.5, cy + 10];
+      const orig = m.datos.nodos.find(o => o.id === n.id);
+      h += `<g class="nodo${n.pend ? ' pend' : ''}" data-id="${n.id}" data-area="${n.area}" tabindex="0" role="button" aria-label="${CX.esc(n.etiqueta)}. Pulsa para ver sus conexiones" style="--c:${color(n.color)}">
+        <title>${CX.esc(orig.que)}</title><rect x="${n.x}" y="${n.y}" width="${n.w}" height="${n.h}" rx="8"/>
+        <text text-anchor="middle">${n.lineas.map((t, i) => `<tspan x="${cx}" y="${ys[i]}">${CX.esc(t)}</tspan>`).join('')}</text></g>`;
+    }
+    h += '</g><g class="btitulos">';                 // los títulos de banda van encima de las aristas
+    for (const b of L.bandas) if (!b.vacia) h += `<text class="btitulo" x="14" y="${b.y + 17}" style="--c:${color(b.color)};--cs:${color(b.color + '-s')}">${CX.esc(b.titulo)}</text>`;
+    svg.innerHTML = h + '</g>';
+    m.aplicar();
+    m.panel();
+  },
+
+  /* Clases de resalte según la selección y el filtro de área */
+  aplicar() {
+    const m = CX.mapa, root = m.root, { sel, area } = m.estado;
+    const inc = new Set(), vec = new Set();
+    if (sel.size) {
+      for (const a of m.datos.aristas) if (sel.has(a.de) || sel.has(a.a)) { inc.add(a.de + '>' + a.a); vec.add(a.de); vec.add(a.a); }
+      sel.forEach(id => vec.delete(id));
+    }
+    CX.$$('.nodo', root).forEach(g => {
+      const id = g.dataset.id;
+      g.classList.toggle('sel', sel.has(id));
+      g.classList.toggle('vec', vec.has(id));
+      g.classList.toggle('dim', sel.size > 0 && !sel.has(id) && !vec.has(id));
+      g.classList.toggle('fuera', sel.size === 0 && !!area && g.dataset.area !== area);
+    });
+    const areaDe = id => (m.datos.nodos.find(n => n.id === id) || {}).area;
+    CX.$$('.ar-g', root).forEach(g => {
+      const p = CX.$('path.ar', g), activa = inc.has(g.dataset.de + '>' + g.dataset.a);
+      p.classList.toggle('act', activa);
+      p.classList.toggle('dim', sel.size > 0 && !activa);
+      p.classList.toggle('fuera', sel.size === 0 && !!area && areaDe(g.dataset.de) !== area && areaDe(g.dataset.a) !== area);
+    });
+  },
+
+  /* Texto del panel: qué es el concepto y con qué se conecta, y por qué */
+  panel() {
+    const m = CX.mapa, p = CX.$('#mapa-panel', m.root), { sel, arista } = m.estado;
+    const nodo = id => m.datos.nodos.find(n => n.id === id);
+    const area = id => (m.datos.areas.find(a => a.id === id) || {}).titulo || id;
+    const marca = e => e.tipo === 'propuesta' ? '<span class="prop">propuesta</span>' : '';
+    const donde = n => {
+      if (n.pend) return 'Pendiente: aún no hay apuntes de este concepto.';
+      const t = document.getElementById('p-' + n.pagina);
+      const nombre = t ? (t.dataset.num ? t.dataset.num + ' ' : '') + t.dataset.title : n.pagina;
+      return `Se explica en <a href="#/${n.pagina}/${n.pagina}-s${n.sub}">${CX.esc(nombre)} › apartado ${n.sub}</a>.`;
+    };
+    const lista = (ids) => {
+      const filas = [];
+      for (const a of m.datos.aristas) {
+        const sale = ids.has(a.de), entra = ids.has(a.a);
+        if (!sale && !entra) continue;
+        if (sale && entra) continue;                       // conexión interna a la selección
+        const otro = nodo(sale ? a.a : a.de);
+        filas.push(`<li><button class="b" type="button" data-ir="${otro.id}">${sale ? '→' : '←'} ${CX.esc(otro.etiqueta)}</button>${CX.esc(a.porque)}${marca(a)}</li>`);
+      }
+      return filas.length ? `<ul class="cx">${filas.join('')}</ul>` : '<p>Sin conexiones.</p>';
+    };
+    if (arista) {
+      const a = arista, A = nodo(a.de), B = nodo(a.a);
+      p.innerHTML = `<b class="n">${CX.esc(A.etiqueta)} → ${CX.esc(B.etiqueta)}</b>${marca(a)}<p>${CX.esc(a.porque)}</p><p class="cap">${a.tipo === 'apuntes' ? 'Esta conexión aparece en los apuntes.' : 'Propuesta: se confirmará cuando haya apuntes de ese tema.'}</p>`;
+    } else if (sel.size === 0) {
+      p.innerHTML = 'Pulsa un concepto para ver de qué trata y con qué se conecta. Línea continua: viene de los apuntes. Línea discontinua: propuesta, aún sin apuntes. Caja discontinua: concepto pendiente.';
+    } else if (sel.size === 1) {
+      const n = nodo([...sel][0]);
+      p.innerHTML = `<b class="n">${CX.esc(n.etiqueta)}</b> <span class="tag">${CX.esc(area(n.area))}</span>${n.pend ? ' <span class="tag">pendiente</span>' : ''}<p>${CX.esc(n.que)}</p><p>${donde(n)}</p><p><b>Se conecta con:</b></p>${lista(sel)}`;
+    } else {
+      const ns = [...sel].map(nodo);
+      const t = document.getElementById('p-' + ns[0].pagina);
+      p.innerHTML = `<b class="n">${CX.esc(t ? t.dataset.title : ns[0].pagina)}</b><p>Conceptos de esta página: ${ns.map(n => `<button class="b" type="button" data-ir="${n.id}">${CX.esc(n.etiqueta)}</button>`).join(' ')}</p><p><b>Conexiones con otras páginas:</b></p>${lista(sel)}`;
+    }
+  },
+
+  /* spec = 'n-<id>' (un concepto), 'pag-<id>' (todos los de una página) o null (limpiar) */
+  select(spec) {
+    const m = CX.mapa;
+    if (!m.root) return;
+    const sel = new Set();
+    if (spec && spec.startsWith('n-')) { if (m.datos.nodos.some(n => n.id === spec.slice(2))) sel.add(spec.slice(2)); }
+    else if (spec && spec.startsWith('pag-')) m.datos.nodos.filter(n => !n.pend && n.pagina === spec.slice(4)).forEach(n => sel.add(n.id));
+    m.estado.sel = sel; m.estado.arista = null;
+    const pend = [...sel].some(id => m.datos.nodos.find(n => n.id === id).pend);
+    if (pend && !m.estado.pend) { m.estado.pend = true; CX.$('#mapa-pend', m.root).checked = true; m.render(); return; }
+    if (!CX.$('.nodo', m.root)) m.render(); else { m.aplicar(); m.panel(); }
+  }
+};
+
+CX.w.mapa = function (root) {
+  const datos = CX.datos('mapa');
+  if (!datos) { root.innerHTML = '<p class="ojo"><b>Falta el mapa.</b> No se encontraron los datos del mapa de conexiones.</p>'; return; }
+  const m = CX.mapa;
+  m.datos = datos; m.root = root; m.estado = { pend: true, area: '', sel: new Set(), arista: null };
+  root.innerHTML = `<p class="wt">Cómo se conectan los conceptos <span>Pulsa un concepto para ver sus conexiones y por qué existen.</span></p>
+    <div class="ctrl">
+      <label for="mapa-area">Área</label>
+      <select id="mapa-area"><option value="">Todas</option>${datos.areas.map(a => `<option value="${a.id}">${CX.esc(a.titulo)}</option>`).join('')}</select>
+      <label><input type="checkbox" id="mapa-pend" checked> Mostrar pendientes</label>
+      <button class="b" type="button" id="mapa-limpiar">Quitar selección</button>
+    </div>
+    <div class="diagram mapa"><svg viewBox="0 0 920 400" role="group" aria-label="Mapa de conexiones entre conceptos de los distintos temas"></svg></div>
+    <p class="cap solo-movil">Desliza el mapa de lado para verlo entero.</p>
+    <div class="leg"><span><i class="l1"></i>En los apuntes</span><span><i class="l2"></i>Propuesta (aún sin apuntes)</span><span><i class="l3"></i>Concepto pendiente</span></div>
+    <div class="info" id="mapa-panel" aria-live="polite"></div>`;
+  const elige = id => { const s = m.estado.sel; m.estado.arista = null; m.estado.sel = (s.size === 1 && s.has(id)) ? new Set() : new Set([id]); m.aplicar(); m.panel(); };
+  root.addEventListener('click', e => {
+    const ir = e.target.closest('[data-ir]');
+    if (ir) { m.estado.arista = null; m.estado.sel = new Set([ir.dataset.ir]); m.aplicar(); m.panel(); return; }
+    const n = e.target.closest('.nodo');
+    if (n) { elige(n.dataset.id); return; }
+    const g = e.target.closest('.ar-g');
+    if (g) {
+      m.estado.arista = m.datos.aristas.find(a => a.de === g.dataset.de && a.a === g.dataset.a);
+      m.estado.sel = new Set([g.dataset.de, g.dataset.a]); m.aplicar(); m.panel();
+      m.estado.sel = new Set();                                   // el resalte de la arista se quita al pulsar otra cosa
+      CX.$$('.ar-g', root).forEach(x => CX.$('path.ar', x).classList.toggle('act', x === g));
+      CX.$$('.nodo', root).forEach(x => x.classList.toggle('sel', x.dataset.id === g.dataset.de || x.dataset.id === g.dataset.a));
+    }
+  });
+  root.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { m.select(null); return; }
+    const n = e.target.closest && e.target.closest('.nodo');
+    if (n && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); elige(n.dataset.id); }
+  });
+  CX.$('#mapa-limpiar', root).addEventListener('click', () => m.select(null));
+  CX.$('#mapa-area', root).addEventListener('change', e => { m.estado.area = e.target.value; m.aplicar(); });
+  CX.$('#mapa-pend', root).addEventListener('change', e => { m.estado.pend = e.target.checked; m.render(); });
+  m.render();
+};
+
+/* Bloque «Se conecta con» al final de cada página: conexiones de sus conceptos con los de otras páginas */
+CX.conecta = function (t) {
+  const datos = CX.datos('mapa');
+  if (!datos) return;
+  const slug = t.id.slice(2);
+  const propios = new Set(datos.nodos.filter(n => !n.pend && n.pagina === slug).map(n => n.id));
+  if (!propios.size) return;
+  const por = id => datos.nodos.find(n => n.id === id);
+  const filas = [];
+  for (const a of datos.aristas) {
+    const sale = propios.has(a.de), entra = propios.has(a.a);
+    if (sale === entra) continue;                                 // internas a la página o ajenas a ella
+    const mio = por(sale ? a.de : a.a), otro = por(sale ? a.a : a.de);
+    const destino = otro.pend
+      ? `<span class="pendiente">${CX.esc(otro.etiqueta)} (pendiente: aún sin apuntes)</span>`
+      : `<a href="#/${otro.pagina}/${otro.pagina}-s${otro.sub}">${CX.esc(otro.etiqueta)}</a>`;
+    filas.push(`<li><b>${CX.esc(mio.etiqueta)}</b> ${sale ? '→' : '←'} ${destino}${a.tipo === 'propuesta' ? '<span class="prop">propuesta</span>' : ''}<br>${CX.esc(a.porque)}</li>`);
+  }
+  if (!filas.length) return;
+  const caja = document.createElement('aside');
+  caja.className = 'conecta';
+  caja.innerHTML = `<p class="ch">Se conecta con</p><ul>${filas.join('')}</ul><a class="b vermapa" href="#/home/pag-${slug}">Ver en el mapa</a>`;
+  const autoev = CX.$('h3.autoev', t);
+  if (autoev) autoev.before(caja); else t.append(caja);
+};
+
+/* Tira «5.2 paso a paso»: las páginas en orden con una frase de enlace hacia la siguiente */
+CX.hilo = function () {
+  const d = CX.datos('hilo');
+  if (!d) return;
+  const tira = actual => {
+    const enlaces = d.paginas.map((p, i) => {
+      const t = document.getElementById('p-' + p.id);
+      return t ? `<a href="#/${p.id}" style="--c:var(--${t.dataset.color || 'slate'});--cs:var(--${t.dataset.color || 'slate'}-s)"${p.id === actual ? ' aria-current="page"' : ''}><b>${i + 1}</b>${CX.esc(t.dataset.title)}</a>` : '';
+    }).join('');
+    const p = d.paginas.find(x => x.id === actual);
+    const sig = p && p.frase ? `<span class="sig">Siguiente paso: ${CX.esc(p.frase)}</span>` : '';
+    const nav = document.createElement('nav');
+    nav.className = 'hilo';
+    nav.setAttribute('aria-label', d.titulo);
+    nav.innerHTML = `<span class="t">${CX.esc(d.titulo)}</span>${enlaces}${sig}`;
+    return nav;
+  };
+  d.paginas.forEach(p => { const t = document.getElementById('p-' + p.id); if (t) CX.$('h2', t).after(tira(p.id)); });
+  CX.$$('[data-hilo]').forEach(s => s.replaceWith(tira(null)));
+};
+
+/* Leyenda del código de colores (se coloca donde haya un [data-leyenda]) */
+CX.leyenda = function () {
+  CX.$$('[data-leyenda]').forEach(s => {
+    const l = document.createElement('div');
+    l.className = 'leyenda';
+    l.innerHTML = `<div><b class="nm">Texto normal</b>Apuntes de clase.</div>
+      <div><b><span class="az">Texto azul</span></b>Añadido del material, con su fuente (por ejemplo «T22, diap. 58»).</div>
+      <div class="ojo" style="margin:0"><b>⚠ Revisar</b>Duda o posible errata frente al material: conviene comprobarla.</div>
+      <div class="extra" style="margin:0"><b>Extra</b>No está en los apuntes: curiosidades, aplicaciones y conexiones propuestas.</div>`;
+    s.replaceWith(l);
+  });
+};
+
+/* coherencia: luz coherente (emisión estimulada) frente a incoherente (emisión espontánea). */
+CX.w.coherencia = function (root) {
+  const S = CX.s, U = CX.ui;
+  const FASES = [0, 2.1, 4.3, 1.2, 5.5, 3.3, 0.7, 4.9, 2.8, 5.9, 1.9, 3.9];   // 12 fotones con fases fijas
+  root.innerHTML = `<p class="wt">Luz coherente e incoherente <span>Compara cómo salen los fotones.</span></p>
+    <div class="ctrl">${U.seg('modo', [['espontanea', 'Emisión espontánea (LED)'], ['estimulada', 'Emisión estimulada (láser)']], 'espontanea', 'Tipo de emisión')}</div>
+    <div class="diagram"><svg viewBox="0 0 480 270" role="img" aria-label="Doce ondas de luz y la onda resultante de sumarlas"></svg></div>
+    <div class="info" aria-live="polite"></div>
+    <p class="cap">Solo la emisión estimulada produce luz coherente.</p>`;
+  const svg = CX.$('svg', root), info = CX.$('.info', root);
+  let modo = 'espontanea';
+  const LAMBDA = 50;                                                   // longitud de onda dibujada (px)
+
+  function actualizar() {
+    const fases = modo === 'estimulada' ? FASES.map(() => 0.7) : FASES;
+    const r = CX.mod.sumaFasores(fases);
+    const col = modo === 'estimulada' ? 'var(--orange)' : 'var(--muted)';
+    let h = `<defs><clipPath id="co-clip1"><rect x="20" y="22" width="200" height="190"/></clipPath><clipPath id="co-clip2"><rect x="262" y="22" width="200" height="190"/></clipPath></defs>`;
+    h += S.t(120, 16, 'doce fotones', { ancla: 'middle', tam: 13, peso: 700 }) + S.t(362, 16, 'luz resultante (la suma)', { ancla: 'middle', tam: 13, peso: 700 });
+    h += S.r(20, 22, 200, 190, { fill: 'var(--bg)', stroke: 'var(--line)', rx: 6 }) + S.r(262, 22, 200, 190, { fill: 'var(--bg)', stroke: 'var(--line)', rx: 6 });
+    // las doce ondas (se desplazan con CSS un periodo completo, para que el bucle sea continuo)
+    h += `<g clip-path="url(#co-clip1)"><g class="co-onda" style="--per:${LAMBDA}px">`;
+    fases.forEach((f, i) => {
+      const y = 36 + i * 15;
+      h += S.p(S.onda(-LAMBDA, y, 200 + 2 * LAMBDA, 5.5, (200 + 2 * LAMBDA) / LAMBDA, -f, 160), { stroke: col, w: 1.8, op: 0.9 });
+    });
+    h += '</g></g>';
+    // la onda resultante: suma de las doce, con amplitud proporcional a la coherencia
+    const N = 160;
+    let d = '';
+    for (let i = 0; i <= N + 40; i++) {
+      const x = 262 - LAMBDA + (200 + 2 * LAMBDA) * i / (N + 40);
+      let s = 0;
+      for (const f of fases) s += Math.sin(2 * Math.PI * (x - 262) / LAMBDA - f);
+      d += (i ? 'L' : 'M') + x.toFixed(1) + ',' + (117 - 6.8 * s).toFixed(1);
+    }
+    h += `<g clip-path="url(#co-clip2)"><g class="co-onda" style="--per:${LAMBDA}px">${S.p(d, { stroke: 'var(--pair)', w: 2.8 })}</g></g>`;
+    h += S.l(262, 117, 462, 117, { col: 'var(--muted)', w: 0.8, dash: '3 3' });
+    h += S.t(362, 232, modo === 'estimulada' ? 'ondas en fase → suma grande' : 'fases al azar → suma pequeña', { ancla: 'middle', tam: 13, peso: 600, col: 'var(--pair)' });
+    h += S.t(120, 232, modo === 'estimulada' ? 'todas en fase' : 'cada una con su fase', { ancla: 'middle', tam: 13, col: 'var(--muted)' });
+    svg.innerHTML = h;
+
+    root.dataset.modo = modo;
+    root.dataset.resultante = r.toFixed(2);
+    info.textContent = modo === 'estimulada'
+      ? 'Todos los fotones salen en fase: las ondas se suman (luz coherente).'
+      : 'Cada fotón sale con su propia fase: las ondas se cancelan en parte y no hay información de fase (luz incoherente).';
+  }
+  root.addEventListener('click', e => { const b = e.target.closest('[data-modo]'); if (b) { modo = b.dataset.modo; U.fijaSeg(root, 'modo', modo); actualizar(); } });
+  actualizar();
+};
+
+/* curvapi: curva P-I de un láser. La temperatura sube el umbral y la polarización decide si es LED o láser. */
+CX.w.curvapi = function (root) {
+  const S = CX.s, U = CX.ui;
+  root.innerHTML = `<p class="wt">Curva P-I, temperatura y polarización <span>Mueve los deslizadores y cambia de vista.</span></p>
+    <div class="ctrl">${U.seg('vista', [['pi', 'Curva P-I'], ['bits', 'Bits sobre el umbral']], 'pi', 'Vista')}</div>
+    <div class="ctrl">${U.rango('cpi-T', 'Temperatura (°C)', 20, 80, 1, 25)}</div>
+    <div class="ctrl">${U.rango('cpi-bias', 'Polarización (% del umbral)', 0, 200, 5, 120)}</div>
+    <div class="diagram"><svg viewBox="0 0 480 290" role="img" aria-label="Gráfica de potencia óptica frente a corriente de un láser"></svg></div>
+    <div class="info" aria-live="polite"></div>
+    <p class="cap">Al subir la temperatura sube el umbral: por eso los láseres de comunicaciones se refrigeran.</p>`;
+  const svg = CX.$('svg', root), info = CX.$('.info', root);
+  let vista = 'pi';
+
+  function actualizar() {
+    const T = +CX.$('#cpi-T', root).value, bias = +CX.$('#cpi-bias', root).value;
+    const Ith = CX.mod.umbral(T), Ib = Ith * bias / 100, Ipico = Ib + 15;
+    const P = i => CX.mod.potenciaPI(i, Ith);
+    const retraso = bias < 100, zonaLaser = Ib >= Ith;
+    let h = '';
+    if (vista === 'pi') {
+      const PX0 = 56, PX1 = 452, PY0 = 36, PY1 = 232, IMAX = 60, PMAX = 16;
+      const x = i => PX0 + i / IMAX * (PX1 - PX0), y = p => PY1 - p / PMAX * (PY1 - PY0);
+      h += S.r(x(0), PY0, x(Ith) - x(0), PY1 - PY0, { fill: 'color-mix(in srgb,var(--muted) 14%,transparent)' });
+      h += S.r(x(Ith), PY0, x(IMAX) - x(Ith), PY1 - PY0, { fill: 'color-mix(in srgb,var(--orange) 11%,transparent)' });
+      h += S.t(Math.max(x(0) + 2, (x(0) + x(Ith)) / 2 - 18), PY0 + 18, 'LED', { tam: 13, peso: 700, col: 'var(--muted)' });
+      h += S.t((x(Ith) + x(IMAX)) / 2, PY0 + 18, 'láser', { ancla: 'middle', tam: 13, peso: 700, col: 'var(--orange)' });
+      if (Math.abs(T - 20) > 0.5) {
+        const i0 = CX.mod.umbral(20);
+        h += S.l(x(i0), PY0, x(i0), PY1, { col: 'var(--muted)', w: 1.2, dash: '4 4' }) + S.t(x(i0) - 4, PY1 - 8, 'a 20 °C', { ancla: 'end', tam: 11, col: 'var(--muted)' });
+      }
+      h += S.l(x(Ith), PY0, x(Ith), PY1, { col: 'var(--ink)', w: 1.8, dash: '5 3' });
+      h += S.t(x(Ith), PY0 - 6, 'umbral', { ancla: 'middle', tam: 12, peso: 600 });
+      let d = '';
+      for (let i = 0; i <= IMAX; i += 0.5) d += (i ? 'L' : 'M') + x(i).toFixed(1) + ',' + y(P(i)).toFixed(1);
+      h += S.p(d, { stroke: 'var(--pair)', w: 3 });
+      h += S.flecha(PX0, PY1, PX1 + 14, PY1, { w: 1.4, tam: 7 }) + S.flecha(PX0, PY1, PX0, PY0 - 10, { w: 1.4, tam: 7 });
+      h += S.t(PX1 + 14, PY1 + 18, 'corriente →', { ancla: 'end', tam: 12, col: 'var(--muted)' });
+      h += S.t(PX0 - 14, (PY0 + PY1) / 2, 'potencia óptica', { ancla: 'middle', tam: 12, col: 'var(--muted)', rot: -90 });
+      if (Ib <= IMAX) {
+        h += S.l(x(Ib), y(P(Ib)), x(Ib), PY1, { col: 'var(--red)', w: 1.2, dash: '3 3' }) + S.c(x(Ib), y(P(Ib)), 6, { fill: 'var(--red)', stroke: 'var(--panel)', sw: 2 });
+        h += S.t(Math.min(x(Ib) + 10, 380), y(P(Ib)) - 10, 'punto de trabajo', { tam: 12, peso: 600, col: 'var(--red)' });
+      }
+      if (T > 50) h += S.t(240, 20, '¡Por encima de ≈ 50 °C la emisión se degrada!', { ancla: 'middle', tam: 14, peso: 700, col: 'var(--red)' });
+    } else {
+      const X0 = 70, BW = 74, bits = [1, 0, 1, 1, 0], FIN = X0 + BW * bits.length;
+      const yi = i => 128 - i / 60 * 92;
+      // arriba: la corriente de excitación, con la polarización y el umbral
+      h += S.t(10, 24, 'Corriente', { tam: 13, peso: 700 }) + S.t(10, 40, 'de excitación', { tam: 11, col: 'var(--muted)' });
+      h += S.l(X0 - 10, yi(Ith), FIN + 6, yi(Ith), { col: 'var(--ink)', w: 1.6, dash: '5 3' }) + S.t(FIN + 8, yi(Ith) + 4, 'umbral', { tam: 12, peso: 600 });
+      let c = '';
+      bits.forEach((b, k) => { const yy = yi(b ? Ipico : Ib), xx = X0 + k * BW; c += (k ? `L${xx},${yy.toFixed(1)}` : `M${xx},${yy.toFixed(1)}`) + ` L${xx + BW},${yy.toFixed(1)}`; });
+      h += S.p(c, { stroke: 'var(--blue)', w: 2.6 });
+      h += S.l(X0 - 10, yi(0), FIN + 6, yi(0), { col: 'var(--muted)', w: 1, dash: '2 4' });
+      // abajo: la potencia óptica que sale
+      const P1 = P(Ipico), P0 = P(Ib), escala = Math.max(P1, 3);
+      const yp = p => 270 - p / escala * 96;
+      const td = CX.mod.retrasoEncendido(Ipico, Ib, Ith), px = retraso ? Math.min(td, 6) / 6 * 26 : 0;
+      h += S.t(10, 196, 'Luz', { tam: 13, peso: 700 }) + S.t(10, 212, 'a la salida', { tam: 11, col: 'var(--muted)' });
+      h += S.l(X0 - 10, 270, FIN + 6, 270, { col: 'var(--muted)', w: 1, dash: '2 4' }) + S.t(FIN + 8, 274, '0', { tam: 12, col: 'var(--muted)' });
+      let o = '';
+      bits.forEach((b, k) => {
+        const xx = X0 + k * BW, prev = k ? bits[k - 1] : 0, y1 = yp(b ? P1 : P0), y0 = yp(prev ? P1 : P0);
+        const subida = b && !prev ? px : 0;                           // el flanco de subida llega tarde si se parte de 0
+        o += (k ? `L${xx},${y0.toFixed(1)} ` : `M${xx},${y0.toFixed(1)} `) + `L${xx + subida},${y0.toFixed(1)} L${xx + subida + 6},${y1.toFixed(1)} L${xx + BW},${y1.toFixed(1)} `;
+      });
+      h += S.p(o, { stroke: 'var(--orange)', w: 2.8 });
+      if (retraso && px > 0) {
+        h += S.flecha(X0 + 2 * BW, 168, X0 + 2 * BW + Math.max(px, 14), 168, { col: 'var(--red)', w: 1.8, tam: 6 });
+        h += S.t(X0 + 2 * BW - 6, 162, 'retardo (jitter)', { ancla: 'end', tam: 12, peso: 600, col: 'var(--red)' });
+      }
+      if (Ib > 0) h += S.t(X0 + BW + 6, yp(P0) - 6, 'el 0 no es “cero fotones”', { tam: 12, peso: 600, col: 'var(--red)' });
+    }
+    svg.innerHTML = h;
+
+    root.dataset.vista = vista;
+    root.dataset.ith = Ith.toFixed(1);
+    root.dataset.zona = zonaLaser ? 'laser' : 'led';
+    root.dataset.retraso = retraso ? 'si' : 'no';
+    root.dataset.degrada = T > 50 ? 'si' : 'no';
+    info.textContent = (zonaLaser ? 'Por encima del umbral domina la emisión estimulada.' : 'Por debajo del umbral el láser actúa como un LED: poca luz y sin coherencia.')
+      + (retraso ? ' Si apagamos del todo, el láser tarda en volver a encender: jitter.' : '');
+  }
+  root.addEventListener('click', e => { const b = e.target.closest('[data-vista]'); if (b) { vista = b.dataset.vista; U.fijaSeg(root, 'vista', vista); actualizar(); } });
+  root.addEventListener('input', actualizar);
+  actualizar();
+};
+
+/* dbrdfb: cómo se consigue que un láser emita en un solo modo (Fabry-Pérot, DBR y DFB). */
+CX.w.dbrdfb = function (root) {
+  const S = CX.s, U = CX.ui;
+  root.innerHTML = `<p class="wt">¿Cómo se elige un solo modo? <span>Compara los tres tipos de láser.</span></p>
+    <div class="ctrl">${U.seg('tipo', [['FP', 'Fabry-Pérot'], ['DBR', 'DBR'], ['DFB', 'DFB']], 'FP', 'Tipo de láser')}</div>
+    <div class="diagram"><svg viewBox="0 0 480 300" role="img" aria-label="Cavidad de un láser y espectro de salida"></svg></div>
+    <div class="info" aria-live="polite"></div>
+    <p class="cap">Esquema, no a escala.</p>`;
+  const svg = CX.$('svg', root), info = CX.$('.info', root);
+  let tipo = 'FP';
+
+  /* franjas verticales finas (red de Bragg) entre x0 y x1 */
+  const red = (x0, x1, y0, y1) => { let s = ''; for (let x = x0; x <= x1; x += 8) s += S.r(x, y0, 4, y1 - y0, { fill: 'var(--violet)', op: 0.85 }); return s; };
+
+  function actualizar() {
+    const Y0 = 52, Y1 = 118, XA = 84, XB = 396;
+    let h = '';
+    h += S.r(XA, Y0, XB - XA, Y1 - Y0, { fill: 'color-mix(in srgb,var(--orange) 14%,var(--panel))', stroke: 'var(--orange)', sw: 1.6, rx: 4 });
+    h += S.t((XA + XB) / 2, (Y0 + Y1) / 2 + 5, 'medio activo', { ancla: 'middle', tam: 13, col: 'var(--muted)', peso: 600 });
+    if (tipo === 'FP') {
+      h += S.l(XA, Y0 - 8, XA, Y1 + 8, { col: 'var(--ink)', w: 6 }) + S.l(XB, Y0 - 8, XB, Y1 + 8, { col: 'var(--ink)', w: 6 });
+      h += S.t(XA, Y1 + 28, 'espejo', { ancla: 'middle', tam: 13, col: 'var(--muted)' }) + S.t(XB, Y1 + 28, 'espejo', { ancla: 'middle', tam: 13, col: 'var(--muted)' });
+    } else if (tipo === 'DBR') {
+      h += red(XA - 44, XA - 4, Y0 - 8, Y1 + 8) + red(XB + 4, XB + 44, Y0 - 8, Y1 + 8);
+      h += S.t(XA - 22, Y1 + 28, 'red de Bragg', { ancla: 'middle', tam: 12, col: 'var(--violet)', peso: 600 }) + S.t(XB + 24, Y1 + 28, 'red de Bragg', { ancla: 'middle', tam: 12, col: 'var(--violet)', peso: 600 });
+    } else {
+      h += red(XA + 4, XB - 8, Y0 + 2, Y1 - 2);
+      h += S.l(XA, Y0 - 8, XA, Y1 + 8, { col: 'var(--ink)', w: 4 }) + S.l(XB, Y0 - 8, XB, Y1 + 8, { col: 'var(--ink)', w: 4 });
+      h += S.t((XA + XB) / 2, Y1 + 28, 'red de Bragg a lo largo de todo el medio activo (como un hojaldre)', { ancla: 'middle', tam: 12, col: 'var(--violet)', peso: 600 });
+    }
+    h += S.flecha(XB + (tipo === 'DBR' ? 48 : 6), (Y0 + Y1) / 2, XB + 72, (Y0 + Y1) / 2, { col: 'var(--orange)', w: 2.6, tam: 8 });
+    // espectro de salida
+    const PXN = 30, CXE = 240, BASE = 270;
+    h += S.flecha(40, BASE, 450, BASE, { w: 1.4, tam: 7 }) + S.t(450, BASE + 20, 'longitud de onda →', { ancla: 'end', tam: 12, col: 'var(--muted)' });
+    h += S.t(40, 178, 'Espectro de salida', { tam: 13, peso: 700 });
+    const modos = CX.mod.picosModos(tipo);
+    if (tipo === 'FP') {
+      let env = '';
+      for (let x = CXE - 130; x <= CXE + 130; x += 4) env += (env ? 'L' : 'M') + x + ',' + (BASE - 78 * Math.exp(-4 * Math.LN2 * ((x - CXE) / (4 * PXN)) ** 2)).toFixed(1);
+      h += S.p(env, { stroke: 'var(--muted)', w: 1.2, dash: '4 3' });
+    }
+    for (const m of modos) {
+      const x = CXE + m * PXN, alto = tipo === 'FP' ? 78 * Math.exp(-4 * Math.LN2 * ((x - CXE) / (4 * PXN)) ** 2) : 84;
+      h += S.l(x, BASE, x, BASE - alto, { col: tipo === 'FP' ? 'var(--blue)' : 'var(--green)', w: tipo === 'FP' ? 3 : 4 });
+    }
+    h += S.t(CXE + 150, 205, tipo === 'FP' ? 'varios modos' : 'un solo modo', { tam: 13, peso: 700, col: tipo === 'FP' ? 'var(--blue)' : 'var(--green)' });
+    svg.innerHTML = h;
+
+    root.dataset.tipo = tipo;
+    root.dataset.picos = String(modos.length);
+    info.textContent = { FP: 'El Fabry-Pérot deja pasar varios modos longitudinales: no sirve para DWDM.',
+      DBR: 'Los espejos son filtros (redes de Bragg) que dejan pasar una única longitud de onda.',
+      DFB: 'El propio medio activo hace de filtro, como un hojaldre de capas con distinto índice. Es el más usado en DWDM.' }[tipo];
+  }
+  root.addEventListener('click', e => { const b = e.target.closest('[data-tipo]'); if (b) { tipo = b.dataset.tipo; U.fijaSeg(root, 'tipo', tipo); actualizar(); } });
+  actualizar();
+};
+
+/* deriva: la temperatura mueve la longitud de onda de un láser y puede invadir el canal vecino (DWDM). */
+CX.w.deriva = function (root) {
+  const S = CX.s;
+  root.innerHTML = `<p class="wt">La temperatura mueve la longitud de onda <span>Cambia la temperatura y mira el canal.</span></p>
+    <div class="ctrl">${CX.ui.rango('der-dT', 'Cambio de temperatura (°C)', -10, 20, 1, 0)}</div>
+    <div class="diagram"><svg viewBox="0 0 480 264" role="img" aria-label="Cinco canales de una rejilla de longitud de onda y la raya de un láser que se desplaza"></svg></div>
+    <div class="out"><div><small>Desplazamiento</small><b></b></div></div>
+    <div class="info" aria-live="polite"></div>
+    <p class="cap">Separación entre canales de 100 GHz ≈ 0,8 nm.</p>`;
+  const svg = CX.$('svg', root), info = CX.$('.info', root), salida = CX.$('.out b', root);
+  const PX_NM = 100, X0 = 240, BASE = 190, ANCHO_CANAL = 38;
+
+  function actualizar() {
+    const dT = +CX.$('#der-dT', root).value;
+    const dl = CX.mod.derivaLambda(dT), estado = CX.mod.estadoCanal(dl);
+    const col = { ok: 'var(--green)', peligro: 'var(--yellow)', choque: 'var(--red)' }[estado];
+    let h = '';
+    for (let i = -2; i <= 2; i++) {
+      const x = X0 + i * 0.8 * PX_NM;
+      h += S.r(x - ANCHO_CANAL / 2, 54, ANCHO_CANAL, BASE - 54, { fill: i === 0 ? 'color-mix(in srgb,var(--green) 16%,var(--panel))' : 'var(--soft)', stroke: i === 0 ? 'var(--green)' : 'var(--line)', sw: i === 0 ? 1.8 : 1, rx: 4, op: i === 0 ? 1 : 0.85 });
+    }
+    h += S.t(X0, 46, 'canal del láser', { ancla: 'middle', tam: 13, peso: 700, col: 'var(--green)' });
+    h += S.t(X0 + 0.8 * PX_NM * 2, 46, 'canal vecino', { ancla: 'middle', tam: 13, col: 'var(--muted)' });
+    h += S.t(X0 - 0.8 * PX_NM * 2, 46, 'canal vecino', { ancla: 'middle', tam: 13, col: 'var(--muted)' });
+    // la raya del láser, desplazada
+    const xl = X0 + dl * PX_NM;
+    h += S.l(X0, BASE + 4, X0, 66, { col: 'var(--muted)', w: 1.2, dash: '3 3' });
+    h += S.l(xl, BASE, xl, 70, { col, w: 5 });
+    if (Math.abs(dl) > 0.01) h += S.flecha(X0, 78, xl, 78, { col: 'var(--ink)', w: 1.6, tam: 7 });
+    // eje
+    h += S.flecha(20, BASE + 14, 462, BASE + 14, { w: 1.4, tam: 7 }) + S.t(462, BASE + 34, 'longitud de onda →', { ancla: 'end', tam: 12, col: 'var(--muted)' });
+    h += S.t(20, BASE + 34, dT === 0 ? 'sin cambio de temperatura' : `${dT > 0 ? '+' : '−'}${Math.abs(dT)} °C → la longitud de onda ${dT > 0 ? 'aumenta' : 'disminuye'}`, { tam: 13, peso: 600 });
+    h += S.t(240, 256, '≈ 0,1 nm/°C (valor típico, Extra)', { ancla: 'middle', tam: 12, col: 'var(--muted)' });
+    svg.innerHTML = h;
+
+    root.dataset.estado = estado;
+    root.dataset.dl = Math.abs(dl).toFixed(2);
+    salida.textContent = Math.abs(dl).toFixed(2).replace('.', ',') + ' nm';
+    info.textContent = { ok: 'Dentro de su canal: todo bien.', peligro: 'Se acerca al borde del canal: aumentan las interferencias.',
+      choque: 'Invade el canal vecino: se mezclan dos canales. Por eso se estabiliza la temperatura.' }[estado];
+  }
+  root.addEventListener('input', actualizar);
+  actualizar();
+};
+
+/* espectros: anchura espectral de un LED, un láser FP y un láser DFB frente a una rejilla de canales DWDM. */
+CX.w.espectros = function (root) {
+  const S = CX.s;
+  root.innerHTML = `<p class="wt">Anchura espectral <span>Marca o desmarca cada emisor.</span></p>
+    <div class="ctrl">
+      <label><input type="checkbox" id="esp-led" checked> LED</label>
+      <label><input type="checkbox" id="esp-fp" checked> Láser FP</label>
+      <label><input type="checkbox" id="esp-dfb" checked> Láser DFB</label></div>
+    <div class="diagram"><svg viewBox="0 0 480 270" role="img" aria-label="Espectro de un LED, un láser Fabry-Pérot y un láser DFB sobre una rejilla de canales"></svg></div>
+    <div class="info" aria-live="polite"></div>
+    <p class="cap">Esquema con las cifras de los apuntes: canales a ≈ 0,8 nm; LED ≈ 50 nm, FP ≈ 4 nm, DFB &lt; 1 nm.</p>`;
+  const svg = CX.$('svg', root), info = CX.$('.info', root);
+  const PX = 8.8, CX0 = 240, BASE = 214;                               // píxeles por nm, centro del dibujo y línea base
+  const gauss = (x, mu, fwhm) => Math.exp(-4 * Math.LN2 * ((x - mu) / fwhm) ** 2);
+
+  function actualizar() {
+    const ver = { led: CX.$('#esp-led', root).checked, fp: CX.$('#esp-fp', root).checked, dfb: CX.$('#esp-dfb', root).checked };
+    const canal = i => CX0 + (i - 3.5) * 0.8 * PX;                      // 8 canales separados 0,8 nm
+    let h = `<defs><clipPath id="esp-clip"><rect x="14" y="30" width="452" height="190"/></clipPath></defs>`;
+    // leyenda
+    let lx = 16;
+    for (const [k, txt, col] of [['led', 'LED ≈ 50 nm', 'var(--orange)'], ['fp', 'Láser FP ≈ 4 nm', 'var(--blue)'], ['dfb', 'Láser DFB < 1 nm', 'var(--green)']]) {
+      if (!ver[k]) continue;
+      h += S.c(lx + 5, 14, 5, { fill: col }) + S.t(lx + 14, 18, txt, { tam: 13, peso: 600 });
+      lx += 26 + txt.length * 7.2;
+    }
+    // curvas
+    h += '<g clip-path="url(#esp-clip)">';
+    if (ver.led) {
+      let d = `M14,${BASE}`;
+      for (let x = 14; x <= 466; x += 4) d += ` L${x},${(BASE - 112 * gauss(x, CX0, 50 * PX)).toFixed(1)}`;
+      h += S.p(d + ` L466,${BASE} Z`, { fill: 'color-mix(in srgb,var(--orange) 22%,transparent)', stroke: 'var(--orange)', w: 2.4 });
+    }
+    if (ver.fp) {
+      let env = `M${CX0 - 90},${BASE}`;
+      for (let x = CX0 - 90; x <= CX0 + 90; x += 3) env += ` L${x},${(BASE - 128 * gauss(x, CX0, 4 * PX)).toFixed(1)}`;
+      h += S.p(env, { stroke: 'var(--blue)', w: 1.2, dash: '4 3', op: 0.7 });
+      for (const m of CX.mod.picosModos('FP')) {
+        const x = CX0 + m * PX, alto = 128 * gauss(x, CX0, 4 * PX);
+        h += S.l(x, BASE, x, BASE - alto, { col: 'var(--blue)', w: 2.4 });
+      }
+    }
+    if (ver.dfb) h += S.l(canal(3), BASE, canal(3), BASE - 168, { col: 'var(--green)', w: 3 });
+    h += '</g>';
+    // eje y rejilla de canales
+    h += S.flecha(14, BASE, 466, BASE, { col: 'var(--ink)', w: 1.4, tam: 7 });
+    for (let i = 0; i < 8; i++) h += S.l(canal(i), BASE, canal(i), BASE + 14, { col: 'var(--muted)', w: 2.2 });
+    h += S.t(CX0, BASE + 32, 'canales DWDM (≈ 0,8 nm)', { ancla: 'middle', tam: 13, col: 'var(--muted)' });
+    h += S.t(464, BASE + 32, 'longitud de onda →', { ancla: 'end', tam: 12, col: 'var(--muted)' });
+    svg.innerHTML = h;
+
+    root.dataset.anchos = [ver.led && '50', ver.fp && '4', ver.dfb && '0.5'].filter(Boolean).join(',');
+    info.textContent = ver.dfb ? 'Una raya fina cabe en su canal: es lo que pide DWDM.'
+      : ver.fp ? 'Un láser FP ocupa varios canales a la vez: no sirve para DWDM.'
+      : ver.led ? 'Un LED ocuparía decenas de canales a la vez: no se puede multiplexar.'
+      : 'Marca algún emisor para ver su espectro.';
+  }
+  root.addEventListener('change', actualizar);
+  actualizar();
+};
+
+/* haz: forma del haz de un LED frente a un láser y qué parte entra en la fibra. */
+CX.w.haz = function (root) {
+  const S = CX.s, U = CX.ui;
+  root.innerHTML = `<p class="wt">Forma del haz <span>Elige el emisor y si hay lente.</span></p>
+    <div class="ctrl">${U.seg('fuente', [['led', 'LED'], ['laser', 'Láser']], 'led', 'Emisor')}
+      ${U.seg('lente', [['no', 'Sin lente'], ['si', 'Con lente / pigtail']], 'no', 'Lente')}</div>
+    <div class="diagram"><svg viewBox="0 0 480 270" role="img" aria-label="Rayos que salen de un emisor hacia una fibra óptica"></svg></div>
+    <div class="info" aria-live="polite"></div>
+    <p class="cap">Dibujo esquemático, no a escala. Rayo continuo: entra en la fibra. Rayo discontinuo: se pierde.</p>`;
+  const svg = CX.$('svg', root), info = CX.$('.info', root);
+  let fuente = 'led', lente = 'no';
+  const ex = 56, ey = 130, fx = 372, mitadNucleo = 24, lx = 160;      // emisor, fibra y lente (posiciones en el dibujo)
+
+  function actualizar() {
+    const led = fuente === 'led', conLente = lente === 'si';
+    const angulos = led ? [-80, -70, -60, -50, -40, -30, -20, -10, 0, 10, 20, 30, 40, 50, 60, 70, 80] : [-4, -2, 0, 2, 4];
+    const col = led ? 'var(--orange)' : 'var(--red)';
+    let h = '';
+    if (led) {                                                          // patrón lambertiano: un círculo tangente al emisor
+      h += S.c(ex + 54, ey, 54, { fill: 'color-mix(in srgb,var(--orange) 10%,transparent)', stroke: 'var(--orange)', sw: 1, op: 0.5 });
+    }
+    // fibra: revestimiento, núcleo y cono de aceptación
+    h += S.r(fx, ey - 46, 74, 92, { fill: 'var(--soft)', stroke: 'var(--line)', rx: 4 });
+    h += S.r(fx, ey - mitadNucleo, 74, mitadNucleo * 2, { fill: 'color-mix(in srgb,var(--pair) 22%,var(--panel))', stroke: 'var(--pair)', sw: 1.4 });
+    h += S.t(fx + 37, ey + 72, 'Fibra', { ancla: 'middle', tam: 13, peso: 600 });
+    h += S.t(fx + 37, ey + 8, 'núcleo', { ancla: 'middle', tam: 12, col: 'var(--muted)' });
+    // lente
+    if (conLente) {
+      h += `<path d="M${lx},${ey - 58} Q${lx + 16},${ey} ${lx},${ey + 58} Q${lx - 16},${ey} ${lx},${ey - 58} Z" fill="color-mix(in srgb,var(--blue) 18%,var(--panel))" stroke="var(--blue)" stroke-width="1.6"/>`;
+      h += S.t(lx, ey + 76, 'lente', { ancla: 'middle', tam: 12, col: 'var(--blue)' });
+    }
+    // rayos
+    let entran = 0;
+    for (const g of angulos) {
+      const t = Math.tan(g * Math.PI / 180);
+      let pts, entra;
+      if (led && conLente) {
+        const yl = ey + t * (lx - ex);
+        if (Math.abs(yl - ey) <= 56) {                                   // pasa por la lente y se concentra hacia la fibra
+          const yf = ey + (yl - ey) * 0.11;
+          pts = [[ex, ey], [lx, yl], [fx, yf]]; entra = Math.abs(yf - ey) <= mitadNucleo;
+        } else { pts = [[ex, ey], [lx - 4, yl]]; entra = false; }        // no llega a la lente
+      } else {
+        const y = ey + t * (fx - ex);
+        entra = Math.abs(y - ey) <= mitadNucleo;
+        const k = Math.min(1, 118 / Math.abs(y - ey || 1));            // se recorta el rayo al salir del dibujo
+        pts = [[ex, ey], [ex + (fx - ex) * k, ey + (y - ey) * k]];
+      }
+      if (entra) entran++;
+      const d = 'M' + pts.map(p => p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' L');
+      h += S.p(d, { stroke: entra ? col : 'var(--muted)', w: entra ? 2.2 : 1.1, dash: entra ? '' : '4 4', op: entra ? 1 : 0.55 });
+    }
+    // emisor
+    h += S.c(ex, ey, 10, { fill: col }) + S.t(ex - 8, ey + 30, led ? 'LED' : 'Láser', { tam: 14, peso: 700, col });
+    h += S.t(ex - 8, ey - 22, 'emisor', { tam: 12, col: 'var(--muted)' });
+    svg.innerHTML = h;
+
+    const nivel = !led ? 'alto' : conLente ? 'medio' : 'bajo';
+    root.dataset.nivel = nivel;
+    info.textContent = { bajo: 'Solo entra ≈ 1 % de la luz del LED: emite en todo el hemisferio.',
+      medio: 'La lente concentra la luz y entra más, pero sigue siendo poca.',
+      alto: 'El láser emite en un cono estrecho: entra la mayor parte de la luz.' }[nivel];
+  }
+  root.addEventListener('click', e => {
+    const f = e.target.closest('[data-fuente]'), l = e.target.closest('[data-lente]');
+    if (f) { fuente = f.dataset.fuente; U.fijaSeg(root, 'fuente', fuente); }
+    if (l) { lente = l.dataset.lente; U.fijaSeg(root, 'lente', lente); }
+    if (f || l) actualizar();
+  });
+  actualizar();
+};
+
+/* ledbandas: cómo emite luz un LED (bandas, recombinación electrón-hueco, gap directo o indirecto). */
+CX.w.ledbandas = function (root) {
+  const S = CX.s, U = CX.ui;
+  root.innerHTML = `<p class="wt">¿Cómo emite luz un LED? <span>Cambia el gap y el tipo de material.</span></p>
+    <div class="ctrl">${U.seg('tipo', [['directo', 'Gap directo'], ['indirecto', 'Gap indirecto']], 'directo', 'Tipo de gap')}
+      ${U.rango('ledbandas-gap', 'Gap (eV)', 0.6, 3, 0.01, 1.42)}</div>
+    <div class="diagram"><svg viewBox="0 0 480 296" role="img" aria-label="Diagrama de bandas de un semiconductor con un electrón que se recombina con un hueco"></svg></div>
+    <div class="info" aria-live="polite"></div>
+    <p class="cap">Con GaAs (1,42 eV) la luz sale en el infrarrojo cercano.</p>`;
+  const svg = CX.$('svg', root), info = CX.$('.info', root);
+  let tipo = 'directo';
+
+  function actualizar() {
+    const eg = +CX.$('#ledbandas-gap', root).value;
+    const nm = CX.mod.gapANm(eg), directo = tipo === 'directo';
+    const gapPx = 44 + (eg - 0.6) / 2.4 * 96;                       // altura dibujada del gap
+    const yCond = 34, yBordeC = yCond + 22, yVal = yBordeC + gapPx, yMed = (yBordeC + yVal) / 2;
+    const col = S.colorLuz(nm), ir = CX.mod.colorDeLambda(nm) === 'infrarrojo';
+    const barra = S.barraEspectro('lb-esp', 20, 252, 440, 14, 350, 2100);
+    let h = barra.svg;
+    // bandas
+    h += S.r(20, yCond, 310, 22, { fill: 'color-mix(in srgb,var(--blue) 18%,var(--panel))', stroke: 'var(--blue)', rx: 4 });
+    h += S.r(20, yVal, 310, 22, { fill: 'color-mix(in srgb,var(--orange) 18%,var(--panel))', stroke: 'var(--orange)', rx: 4 });
+    h += S.t(28, yCond - 7, 'Banda de conducción', { tam: 13, peso: 600, col: 'var(--muted)' });
+    h += S.t(28, yVal + 40, 'Banda de valencia', { tam: 13, peso: 600, col: 'var(--muted)' });
+    // gap
+    h += S.flecha(66, yMed - 4, 66, yBordeC + 2, { w: 1.4, col: 'var(--muted)', tam: 6 }) + S.flecha(66, yMed + 4, 66, yVal - 2, { w: 1.4, col: 'var(--muted)', tam: 6 });
+    h += S.t(74, yMed + 5, 'gap', { tam: 14, peso: 700 });
+    // electrón (arriba) y hueco (abajo) y la recombinación
+    const caida = Math.round(yVal - yBordeC - 18);
+    h += `<g class="lb-e" style="--cae:${caida}px">${S.c(160, yBordeC + 11, 8, { fill: 'var(--blue)' })}${S.t(160, yBordeC + 15, '−', { ancla: 'middle', tam: 13, peso: 700, col: '#fff' })}</g>`;
+    h += S.c(160, yVal - 11, 8, { fill: 'var(--panel)', stroke: 'var(--orange)', sw: 2.4 }) + S.t(160, yVal - 7, '+', { ancla: 'middle', tam: 13, peso: 700, col: 'var(--orange)' });
+    h += S.t(176, yBordeC + 15, 'electrón', { tam: 12, col: 'var(--blue)' }) + S.t(176, yVal - 6, 'hueco', { tam: 12, col: 'var(--orange)' });
+    if (directo) {
+      h += S.flecha(160, yBordeC + 22, 160, yVal - 21, { col: 'var(--muted)', dash: '4 3', w: 1.5, tam: 6 });
+      h += `<g class="lb-f">${S.foton(214, yMed, 322, yMed, col, { dash: ir ? '5 3' : '' })}</g>`;
+      h += S.t(270, yMed - 12, 'fotón', { ancla: 'middle', tam: 13, peso: 600, col });
+      h += S.t(270, yMed + 24, 'su energía = el gap', { ancla: 'middle', tam: 12, col: 'var(--muted)' });
+      const mx = barra.x(nm);
+      h += S.p(`M${mx},251 l-6,-9 l12,0 z`, { fill: 'var(--ink)', stroke: 'none' });
+    } else {
+      h += S.p(`M160,${yBordeC + 22} L190,${yMed - 4} L136,${yMed + 6} L160,${yVal - 21}`, { stroke: 'var(--muted)', dash: '4 3', w: 1.5 });
+      for (let i = 0; i < 3; i++) h += S.p(S.onda(206, yMed - 16 + i * 16, 100, 4, 3, i), { stroke: 'var(--red)', w: 2, op: 0.85 });
+      h += S.t(256, yMed + 40, 'calor, no luz', { ancla: 'middle', tam: 14, peso: 700, col: 'var(--red)' });
+    }
+    // escala de espectro
+    h += S.t(barra.x(565), 284, 'luz visible', { ancla: 'middle', tam: 12, col: 'var(--muted)' });
+    h += S.t(barra.x(1300), 284, 'infrarrojo →', { ancla: 'middle', tam: 12, col: 'var(--muted)' });
+    svg.innerHTML = h;
+
+    root.dataset.estado = directo ? 'luz' : 'calor';
+    root.dataset.lambda = Math.round(nm);
+    if (directo) {
+      const c = CX.mod.colorDeLambda(nm);
+      const que = c === 'infrarrojo' ? (nm < 1400 ? 'infrarrojo cercano' : 'infrarrojo') : c === 'ultravioleta' ? 'ultravioleta' : 'luz ' + c;
+      info.innerHTML = `<b class="n">≈ ${CX.fmt(nm / 1000, 2)} µm</b> — ${que}`;
+    } else info.textContent = 'El silicio es un ejemplo: la recombinación da calor, no luz.';
+  }
+  root.addEventListener('click', e => { const b = e.target.closest('[data-tipo]'); if (b) { tipo = b.dataset.tipo; U.fijaSeg(root, 'tipo', tipo); actualizar(); } });
+  root.addEventListener('input', actualizar);
+  actualizar();
+};
+
+/* modulacion: modulación directa (se varía la corriente del láser) frente a externa (láser continuo + modulador). */
+CX.w.modulacion = function (root) {
+  const S = CX.s, U = CX.ui;
+  root.innerHTML = `<p class="wt">Modulación directa y externa <span>Elige cómo se imprimen los bits en la luz.</span></p>
+    <div class="ctrl">${U.seg('modo', [['directa', 'Directa'], ['externa', 'Externa']], 'directa', 'Tipo de modulación')}</div>
+    <div class="diagram"><svg viewBox="0 0 480 300" role="img" aria-label="Patrón de bits y potencia óptica a la salida del láser"></svg></div>
+    <div class="info" aria-live="polite"></div>
+    <p class="cap">Dibujo esquemático.</p>`;
+  const svg = CX.$('svg', root), info = CX.$('.info', root);
+  let modo = 'directa';
+  const BITS = [1, 0, 1, 1, 0, 0, 1, 0], X0 = 90, BW = 46, FIN = X0 + BW * BITS.length;
+  const nivelEn = x => { const i = Math.floor((x - X0) / BW); return i < 0 || i >= BITS.length ? 0 : BITS[i]; };
+
+  /* respuesta de un sistema de segundo orden poco amortiguado (retardo + oscilaciones tras cada flanco) */
+  function respuestaDirecta(bajo, alto) {
+    const w = 0.3, z = 0.5, retardo = 8;
+    let y = bajo, v = 0;
+    const pts = [];
+    for (let x = X0 - 6; x <= FIN; x += 1) {
+      const objetivo = nivelEn(x - retardo) ? alto : bajo;
+      const a = w * w * (objetivo - y) - 2 * z * w * v;
+      v += a; y += v;
+      pts.push([x, y]);
+    }
+    return 'M' + pts.map(p => p[0] + ',' + p[1].toFixed(1)).join(' L');
+  }
+
+  function actualizar() {
+    const dir = modo === 'directa';
+    let h = '';
+    // fila 1: los bits
+    let d = '';
+    BITS.forEach((b, i) => { const y = b ? 30 : 62, x = X0 + i * BW; d += (i ? `L${x},${y}` : `M${x},${y}`) + ` L${x + BW},${y}`; });
+    h += S.t(14, 52, 'Bits', { tam: 14, peso: 700 });
+    h += S.p(d, { stroke: 'var(--ink)', w: 2.2 });
+    BITS.forEach((b, i) => { h += S.t(X0 + i * BW + BW / 2, 22, String(b), { ancla: 'middle', tam: 13, col: 'var(--muted)' }); });
+    h += S.l(X0, 76, FIN, 76, { col: 'var(--line)', w: 1 });
+    // fila 2: el montaje
+    const bloque = (x, w, txt, col) => S.r(x, 90, w, 32, { fill: `color-mix(in srgb,${col} 14%,var(--panel))`, stroke: col, rx: 7, sw: 1.8 }) + S.t(x + w / 2, 111, txt, { ancla: 'middle', tam: 13, peso: 600 });
+    if (dir) {
+      h += S.t(14, 111, 'Montaje', { tam: 13, col: 'var(--muted)' });
+      h += bloque(X0, 96, 'Corriente', 'var(--blue)') + S.flecha(X0 + 96, 106, X0 + 140, 106, { w: 1.8 }) + bloque(X0 + 140, 80, 'Láser', 'var(--orange)') + S.flecha(X0 + 220, 106, X0 + 266, 106, { w: 1.8 });
+      h += S.t(X0 + 274, 111, 'luz', { tam: 13, peso: 600, col: 'var(--orange)' });
+    } else {
+      h += S.t(14, 111, 'Montaje', { tam: 13, col: 'var(--muted)' });
+      h += bloque(X0, 120, 'Láser continuo', 'var(--orange)') + S.flecha(X0 + 120, 106, X0 + 150, 106, { w: 1.8 }) + bloque(X0 + 150, 96, 'Modulador', 'var(--green)') + S.flecha(X0 + 246, 106, X0 + 290, 106, { w: 1.8 });
+      h += S.t(X0 + 298, 111, 'luz', { tam: 13, peso: 600, col: 'var(--orange)' });
+    }
+    // fila 3: la potencia óptica
+    const base = 270, alto = 186, bajo = dir ? 238 : 262;
+    h += S.t(14, 214, 'Potencia', { tam: 14, peso: 700 }) + S.t(14, 231, 'a la salida', { tam: 12, col: 'var(--muted)' });
+    h += S.l(X0 - 10, base, FIN + 6, base, { col: 'var(--muted)', w: 1, dash: '2 4' });
+    h += S.t(FIN + 8, base + 4, '0', { tam: 12, col: 'var(--muted)' });
+    if (dir) {
+      h += S.p(respuestaDirecta(bajo, alto), { stroke: 'var(--orange)', w: 2.6 });
+      // retardo: flanco eléctrico frente a flanco óptico del tercer bit
+      const xe = X0 + 2 * BW;
+      h += S.l(xe, 62, xe, 205, { col: 'var(--muted)', w: 1, dash: '3 3' });
+      h += S.flecha(xe, 200, xe + 16, 200, { w: 1.4, col: 'var(--red)', tam: 5 });
+      h += S.r(FIN - 218, 128, 218, 36, { fill: 'color-mix(in srgb,var(--red) 8%,var(--panel))', stroke: 'var(--red)', rx: 8, sw: 1.2 });
+      h += S.t(FIN - 208, 143, 'retardo (jitter)', { tam: 13, peso: 600, col: 'var(--red)' });
+      h += S.t(FIN - 208, 159, 'chirp: el espectro se ensancha', { tam: 12, col: 'var(--red)' });
+      h += S.t(X0 + BW + 4, 256, 'el 0 no baja a cero', { tam: 12, col: 'var(--muted)' });
+    } else {
+      let o = `M${X0},${bajo}`;
+      BITS.forEach((b, i) => { const x = X0 + i * BW, y = b ? alto : bajo; o += ` L${x},${y} L${x + BW},${y}`; });
+      h += S.p(o, { stroke: 'var(--orange)', w: 2.6 });
+      h += S.r(FIN - 218, 128, 218, 28, { fill: 'color-mix(in srgb,var(--green) 8%,var(--panel))', stroke: 'var(--green)', rx: 8, sw: 1.2 });
+      h += S.t(FIN - 208, 147, 'láser siempre encendido: sin chirp', { tam: 13, peso: 600, col: 'var(--green)' });
+    }
+    svg.innerHTML = h;
+
+    root.dataset.modo = modo;
+    root.dataset.problemas = dir ? 'chirp,jitter' : '';
+    info.textContent = dir ? 'Barata y sencilla, pero introduce retardo y chirp, y estresa el láser.'
+      : 'Cara (hace falta un modulador), pero evita el chirp y permite más velocidad.';
+  }
+  root.addEventListener('click', e => { const b = e.target.closest('[data-modo]'); if (b) { modo = b.dataset.modo; U.fijaSeg(root, 'modo', modo); actualizar(); } });
+  actualizar();
+};
+
+/* planes: DWDM (canales muy juntos en la ventana de 1550 nm) frente a CWDM (18 canales más separados). */
+CX.w.planes = function (root) {
+  const S = CX.s, U = CX.ui;
+  root.innerHTML = `<p class="wt">DWDM frente a CWDM <span>Elige el tipo de multiplexación.</span></p>
+    <div class="ctrl">${U.seg('plan', [['dwdm', 'DWDM'], ['cwdm', 'CWDM']], 'dwdm', 'Tipo de WDM')}</div>
+    <div class="diagram"><svg viewBox="0 0 480 250" role="img" aria-label="Canales de longitud de onda de DWDM y de CWDM"></svg></div>
+    <div class="cols"></div>
+    <p class="cap">DWDM: separación de 12,5 a 100 GHz según la ITU. CWDM: plan de 1271 a 1611 nm.</p>`;
+  const svg = CX.$('svg', root), cols = CX.$('.cols', root);
+  let plan = 'dwdm';
+  const EXIGE = {
+    dwdm: ['Láser monomodo (DFB, DBR)', 'Longitud de onda controlada con fracciones de nm', 'Refrigeración y estabilización de temperatura', 'Filtros muy selectivos y más coste'],
+    cwdm: ['Admite láseres FP', 'Tolerancias de longitud de onda menos exigentes', 'Puede ir sin refrigeración', 'Filtros anchos: más barato']
+  };
+
+  function actualizar() {
+    const dwdm = plan === 'dwdm', cw = CX.mod.canalesCWDM();
+    const XA = 30, XB = 450, NMA = 1260, NMB = 1620, xnm = nm => XA + (nm - NMA) / (NMB - NMA) * (XB - XA);
+    let h = S.t(XA, 20, 'Banda de 1260 a 1620 nm', { tam: 13, peso: 700 });
+    h += S.r(XA, 34, XB - XA, 34, { fill: 'var(--soft)', stroke: 'var(--line)', rx: 4 });
+    // ventana de 1550 nm
+    h += S.r(xnm(1530), 34, xnm(1565) - xnm(1530), 34, { fill: 'color-mix(in srgb,var(--blue) 18%,transparent)', stroke: 'var(--blue)', sw: 1.4, rx: 2 });
+    h += S.t(xnm(1547), 84, '1550 nm', { ancla: 'middle', tam: 12, col: 'var(--blue)', peso: 600 });
+    if (!dwdm) {
+      cw.forEach((nm, i) => { h += S.r(xnm(nm) - 4, 38, 8, 26, { fill: `hsl(${200 - i * 10},65%,50%)`, rx: 2 }); });
+      h += S.t(xnm(cw[0]), 100, `${cw[0]} nm`, { ancla: 'middle', tam: 12, peso: 600 }) + S.t(xnm(cw[17]), 100, `${cw[17]} nm`, { ancla: 'middle', tam: 12, peso: 600 });
+      h += S.flecha(xnm(cw[7]), 122, xnm(cw[8]), 122, { w: 1.4, tam: 5 }) + S.flecha(xnm(cw[8]), 122, xnm(cw[7]), 122, { w: 1.4, tam: 5 });
+      h += S.t((xnm(cw[7]) + xnm(cw[8])) / 2, 140, 'separación de 20 nm', { ancla: 'middle', tam: 13, peso: 600 });
+      h += S.t(240, 172, '18 canales en total', { ancla: 'middle', tam: 14, peso: 700, col: 'var(--pair)' });
+    } else {
+      // ampliación de la ventana de 1550 nm: 8 canales muy juntos
+      h += S.p(`M${xnm(1530)},68 L70,110 M${xnm(1565)},68 L410,110`, { stroke: 'var(--blue)', w: 1.2, dash: '4 3' });
+      h += S.r(70, 110, 340, 62, { fill: 'color-mix(in srgb,var(--blue) 8%,var(--panel))', stroke: 'var(--blue)', sw: 1.4, rx: 6 });
+      for (let i = 0; i < 8; i++) h += S.r(105 + i * 40 - 4, 122, 8, 38, { fill: `hsl(${210 - i * 8},65%,52%)`, rx: 2 });
+      h += S.flecha(105 + 3 * 40, 186, 105 + 4 * 40, 186, { w: 1.4, tam: 5 }) + S.flecha(105 + 4 * 40, 186, 105 + 3 * 40, 186, { w: 1.4, tam: 5 });
+      h += S.t(105 + 3.5 * 40, 204, '≈ 0,8 nm (100 GHz)', { ancla: 'middle', tam: 13, peso: 600 });
+      h += S.t(240, 236, '8 canales muy juntos (ampliación de la ventana de 1550 nm)', { ancla: 'middle', tam: 13, peso: 700, col: 'var(--pair)' });
+    }
+    svg.innerHTML = h;
+    cols.innerHTML = `<div class="pn t"><h4>Qué exige al láser</h4><ul>${EXIGE[plan].map(t => `<li>${CX.esc(t)}</li>`).join('')}</ul></div>`;
+    root.dataset.plan = plan;
+    root.dataset.canales = dwdm ? '8' : String(cw.length);
+    root.dataset.sep = dwdm ? '0,8 nm' : '20 nm';
+  }
+  root.addEventListener('click', e => { const b = e.target.closest('[data-plan]'); if (b) { plan = b.dataset.plan; U.fijaSeg(root, 'plan', plan); actualizar(); } });
+  actualizar();
+};
+
+/* pozo: pozo cuántico. Cuanto más estrecho, más energía de confinamiento, más gap efectivo y luz más azul. */
+CX.w.pozo = function (root) {
+  const S = CX.s;
+  root.innerHTML = `<p class="wt">Pozo cuántico <span>Cambia la anchura del pozo.</span></p>
+    <div class="ctrl">${CX.ui.rango('pozo-ancho', 'Anchura del pozo (nm)', 3, 20, 0.5, 10)}</div>
+    <div class="diagram"><svg viewBox="0 0 480 300" role="img" aria-label="Perfil de energía de un pozo cuántico con un electrón atrapado y la luz que emite al recombinarse"></svg></div>
+    <div class="info" aria-live="polite"></div>
+    <p class="cap">Controlando la anchura del pozo controlamos el gap y, por tanto, la longitud de onda emitida con mucha precisión.</p>`;
+  const svg = CX.$('svg', root), info = CX.$('.info', root);
+
+  function actualizar() {
+    const ancho = +CX.$('#pozo-ancho', root).value;
+    const nm = CX.mod.lambdaPozo(ancho), color = CX.mod.colorDeLambda(nm), col = CX.s.colorLuz(nm);
+    const w = 28 + (ancho - 3) / 17 * 150, xa = 250 - w / 2, xb = 250 + w / 2;     // paredes del pozo
+    const conf = Math.min(34, 200 * 6.35 / (ancho * ancho));                       // confinamiento dibujado (px)
+    const yC = 62, yCpozo = 104, yVpozo = 176, yV = 218;                           // bordes de banda: barrera y pozo
+    const ye = yCpozo - conf, yh = yVpozo + conf;                                  // niveles del electrón y del hueco
+    let h = '';
+    // bandas: perfil de energía
+    h += S.p(`M40,${yC} L${xa},${yC} L${xa},${yCpozo} L${xb},${yCpozo} L${xb},${yC} L440,${yC}`, { stroke: 'var(--blue)', w: 3 });
+    h += S.p(`M40,${yV} L${xa},${yV} L${xa},${yVpozo} L${xb},${yVpozo} L${xb},${yV} L440,${yV}`, { stroke: 'var(--orange)', w: 3 });
+    h += S.r(40, yC - 18, 400, 18, { fill: 'color-mix(in srgb,var(--blue) 10%,transparent)' }) + S.r(40, yV, 400, 18, { fill: 'color-mix(in srgb,var(--orange) 10%,transparent)' });
+    h += S.t(44, yC - 4, 'banda de conducción', { tam: 12, col: 'var(--blue)', peso: 600 }) + S.t(44, yV + 14, 'banda de valencia', { tam: 12, col: 'var(--orange)', peso: 600 });
+    h += S.t(70, yV - 14, 'barrera', { ancla: 'middle', tam: 13, col: 'var(--muted)' }) + S.t(410, yV - 14, 'barrera', { ancla: 'middle', tam: 13, col: 'var(--muted)' });
+    h += S.t(250, yCpozo + 40, 'pozo', { ancla: 'middle', tam: 13, peso: 700, col: 'var(--pair)' });
+    // niveles confinados y el electrón como onda estacionaria
+    h += S.l(xa + 3, ye, xb - 3, ye, { col: 'var(--blue)', w: 1.8, dash: '5 3' }) + S.l(xa + 3, yh, xb - 3, yh, { col: 'var(--orange)', w: 1.8, dash: '5 3' });
+    let o = '';
+    for (let i = 0; i <= 40; i++) o += (i ? 'L' : 'M') + (xa + (xb - xa) * i / 40).toFixed(1) + ',' + (ye - 14 * Math.sin(Math.PI * i / 40)).toFixed(1);
+    h += S.p(o, { stroke: 'var(--blue)', w: 2.2 }) + S.c(250, ye - 7, 6, { fill: 'var(--blue)' });
+    h += S.c(250, yh + 7, 6, { fill: 'var(--panel)', stroke: 'var(--orange)', sw: 2.4 });
+    // recombinación y fotón
+    h += S.flecha(250, ye + 4, 250, yh - 4, { col: 'var(--muted)', w: 1.4, dash: '4 3', tam: 6 });
+    h += S.foton(xb + 12, (ye + yh) / 2, 436, (ye + yh) / 2, col, { dash: color === 'infrarrojo' ? '5 3' : '' });
+    // anchura
+    h += S.flecha(xa, yVpozo + 46, xb, yVpozo + 46, { w: 1.4, col: 'var(--ink)', tam: 6 }) + S.flecha(xb, yVpozo + 46, xa, yVpozo + 46, { w: 1.4, col: 'var(--ink)', tam: 6 });
+    h += S.t(250, yVpozo + 64, 'anchura del pozo', { ancla: 'middle', tam: 12, col: 'var(--muted)' });
+    // barra de espectro con la luz emitida
+    const barra = S.barraEspectro('pz-esp', 40, 270, 400, 12, 350, 1000);
+    h += barra.svg + S.p(`M${barra.x(nm)},269 l-6,-9 l12,0 z`, { fill: 'var(--ink)' });
+    h += S.t(40, 296, 'más azul', { tam: 12, col: 'var(--muted)' }) + S.t(440, 296, 'más rojo →', { ancla: 'end', tam: 12, col: 'var(--muted)' });
+    svg.innerHTML = h;
+
+    root.dataset.lambda = Math.round(nm);
+    root.dataset.color = color;
+    info.innerHTML = `Más estrecho → más energía de confinamiento → más gap → luz más azul.<br>Con este ancho el pozo emite luz de color <b>${color}</b>.`;
+  }
+  root.addEventListener('input', actualizar);
+  actualizar();
+};
+
+/* resonador: Fabry-Pérot. Dos espejos, la luz rebotando y los picos de transmisión que resultan. */
+CX.w.resonador = function (root) {
+  const S = CX.s, U = CX.ui;
+  root.innerHTML = `<p class="wt">Resonador Fabry-Pérot <span>Cambia la reflectividad y el alineamiento de los espejos.</span></p>
+    <div class="ctrl">${U.rango('res-R', 'Reflectividad de los espejos', 0.5, 0.995, 0.005, 0.9)}</div>
+    <div class="ctrl">${U.rango('res-alin', 'Alineamiento (paralelismo)', 0, 100, 1, 100)}</div>
+    <div class="diagram"><svg viewBox="0 0 480 306" role="img" aria-label="Dos espejos paralelos con un rayo que rebota y la curva de transmisión con sus picos"></svg></div>
+    <div class="info" aria-live="polite"></div>
+    <p class="cap">Fineza = rango espectral libre ÷ anchura del pico. Más reflectividad y mejor alineamiento → picos más finos.</p>`;
+  const svg = CX.$('svg', root), info = CX.$('.info', root);
+
+  function actualizar() {
+    const R = +CX.$('#res-R', root).value, alin = +CX.$('#res-alin', root).value / 100;
+    const inclina = (1 - alin) * 12;                                    // grados de inclinación del espejo derecho
+    const XL = 74, XR = 394, Y0 = 26, Y1 = 150;
+    let h = '';
+    // cavidad y espejos
+    h += S.r(XL, Y0, XR - XL, Y1 - Y0, { fill: 'color-mix(in srgb,var(--pair) 7%,var(--panel))' });
+    h += S.l(XL, Y0 - 6, XL, Y1 + 6, { col: 'var(--ink)', w: 6 });
+    const dx = Math.tan(inclina * Math.PI / 180) * (Y1 - Y0) / 2;
+    h += S.l(XR + dx, Y0 - 6, XR - dx, Y1 + 6, { col: 'var(--ink)', w: 6 });
+    h += S.t(XL, Y1 + 24, 'espejo', { ancla: 'middle', tam: 13, col: 'var(--muted)' }) + S.t(XR, Y1 + 24, 'espejo', { ancla: 'middle', tam: 13, col: 'var(--muted)' });
+    // el rayo: entra por la izquierda y rebota; con peor alineamiento se "escapa" antes
+    const maxRebotes = Math.round(2 + 10 * (R - 0.5) / 0.495);
+    const dy = 4 + inclina * 2.4;
+    let y = 52, x = XL, d = `M20,${y} L${XL},${y}`, rebotes = 0, sale = false;
+    h += S.flecha(20, 52, XL - 2, 52, { col: 'var(--pair)', w: 2.4, tam: 7 });
+    for (let k = 0; k < maxRebotes; k++) {
+      const hacia = k % 2 === 0 ? XR : XL, yn = y + dy;
+      if (yn > Y1 - 6) { sale = true; break; }
+      h += S.l(x, y, hacia, yn, { col: 'var(--pair)', w: 2.2, op: Math.max(0.28, Math.pow(R, k)) });
+      x = hacia; y = yn; rebotes++;
+    }
+    if (sale) h += S.flecha(x, y, x + (x === XR ? 26 : -26), y + 18, { col: 'var(--red)', w: 1.6, dash: '3 3', tam: 6 });
+    h += S.t(XR + 16, 56, `${rebotes} rebotes`, { tam: 12, col: 'var(--muted)' });
+    // curva de transmisión: dos periodos
+    const curva = CX.mod.curvaFP(R, alin, 240);
+    const ancho = CX.mod.anchoPico(curva);
+    const BASE = 262, ALTO = 68, XA = 40, PER = 200;
+    let c = `M${XA},${BASE}`;
+    for (let p = 0; p < 2; p++) curva.forEach((v, i) => { c += ` L${(XA + p * PER + PER * i / curva.length).toFixed(1)},${(BASE - ALTO * v).toFixed(1)}`; });
+    c += ` L${XA + 2 * PER},${BASE}`;
+    h += S.p(c + ' Z', { fill: 'color-mix(in srgb,var(--pair) 22%,transparent)', stroke: 'var(--pair)', w: 2.4 });
+    h += S.flecha(XA - 6, BASE, XA + 2 * PER + 14, BASE, { col: 'var(--ink)', w: 1.3, tam: 6 });
+    h += S.t(XA + 2 * PER + 14, BASE + 16, 'longitud de onda →', { ancla: 'end', tam: 12, col: 'var(--muted)' });
+    // marcas: rango espectral libre y anchura del pico
+    const p1 = XA + PER / 2, p2 = XA + PER * 1.5;
+    h += S.flecha(p1, 286, p2, 286, { col: 'var(--orange)', w: 1.6, tam: 6 }) + S.flecha(p2, 286, p1, 286, { col: 'var(--orange)', w: 1.6, tam: 6 });
+    h += S.t((p1 + p2) / 2, 301, 'rango espectral libre', { ancla: 'middle', tam: 13, col: 'var(--orange)', peso: 600 });
+    const w = ancho * PER, yh = BASE - ALTO / 2;
+    h += S.l(p1 - w / 2, yh, p1 + w / 2, yh, { col: 'var(--red)', w: 2.2 }) + S.l(p1 - w / 2, yh - 5, p1 - w / 2, yh + 5, { col: 'var(--red)', w: 2 }) + S.l(p1 + w / 2, yh - 5, p1 + w / 2, yh + 5, { col: 'var(--red)', w: 2 });
+    h += S.t(Math.max(12, p1 - w / 2 - 8), yh + 4, 'anchura', { ancla: 'end', tam: 13, col: 'var(--red)', peso: 600 });
+    svg.innerHTML = h;
+
+    const f = CX.mod.finezaMedida(CX.mod.curvaFP(R, alin, 2000));
+    root.dataset.fineza = f.toFixed(1);
+    info.textContent = (f < 6 ? 'Picos anchos: fineza baja.' : f <= 30 ? 'Picos más finos: fineza media.' : 'Picos muy finos: fineza alta.')
+      + (alin * 100 < 60 ? ' El desalineamiento los ensancha.' : '');
+  }
+  root.addEventListener('input', actualizar);
+  actualizar();
+};
+
+/* Arranque: inicia el motor y, en la build de pruebas, ejecuta el arnés. */
+document.addEventListener('DOMContentLoaded',function(){
+  if(CX.init)CX.init();
+  if(window.T)T.ejecutar();
+});
+
+</script>
+</body>
+</html>
